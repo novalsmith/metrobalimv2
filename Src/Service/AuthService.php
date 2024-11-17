@@ -91,11 +91,11 @@ class AuthService implements IAuthService
     {
         // Ambil data dari repository
         $response = $this->authRepository->revokeToken($userId);
-        $data = new BaseModel;
-        $data->setMessage($response["message"]);
-        $data->setStatus($response["status"]);
+        // $data = new BaseModel;
+        // $data->setMessage($response["message"]);
+        // $data->setStatus($response["status"]);
 
-        return $data;
+        return $response;
     }
 
 }

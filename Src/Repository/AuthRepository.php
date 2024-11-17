@@ -49,8 +49,8 @@ class AuthRepository extends BaseRepository implements IAuthRepository
         // Ambil data dari repository
         $response = $this->executeQueryFetchObject("RevokeAuthToken", $params);
         $data = new BaseModel;
-        $data->setMessage($response["message"]);
-        $data->setStatus($response["status"]);
+        $data->setMessage($response->message);
+        $data->setStatus($response->status);
         return $data;
     }
 }

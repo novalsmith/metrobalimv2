@@ -17,6 +17,39 @@ use Slim\Factory\ServerRequestCreatorFactory;
 
 require __DIR__ . '/../vendor/autoload.php';
 
+/*
+Begin sample php APCu cache
+
+if (extension_loaded('apcu')) {
+echo "APCu is enabled.<br>";
+$user = [];
+$user["userId"] = "A12345";
+$user["name"] = "Noval Nauw";
+$user["email"] = "novalsmith69@gmail.com";
+
+apcu_store('my_key', 'my_value');
+
+$value = apcu_fetch('my_key');
+
+// Menampilkan nilai yang diambil dari cache
+if ($value) {
+echo "Cache Value: <br>";
+echo print_r($value);
+apcu_delete('my_key');
+echo "success deleted";
+$value = apcu_fetch('my_key');
+echo print_r($value);
+
+} else {
+echo "No data found in cache.<br>";
+}
+} else {
+echo "APCu is not enabled.<br>";
+}
+return;
+// End sample php APCu cache
+ */
+
 // Memuat file .env
 $dotenv = Dotenv::createImmutable(__DIR__ . '/../', '.env.development');
 $dotenv->load();
