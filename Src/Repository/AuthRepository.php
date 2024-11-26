@@ -31,26 +31,19 @@ class AuthRepository extends BaseRepository implements IAuthRepository
         return $result;
     }
 
-    public function refreshToken(string $userId, string $token, string $refreshToken): BaseModel
+    public function refreshToken(string $userId)
     {
         $param = [
             $userId,
-            $token,
-            $refreshToken,
         ];
-        $result = $this->executeQueryFetchObject("UpsertAuthToken", $param, BaseModel::class);
-
-        return $result;
+        $response = $this->executeQueryFetchObject("GetUserAuthToken", $param);
+        return $response;
     }
 
-    public function revokeToken(string $userId): BaseModel
+    public function revokeToken(string $userId)
     {
         $params = [$userId];
-        // Ambil data dari repository
         $response = $this->executeQueryFetchObject("RevokeAuthToken", $params);
-        $data = new BaseModel;
-        $data->setMessage($response->message);
-        $data->setStatus($response->status);
-        return $data;
+        return $response;
     }
 }

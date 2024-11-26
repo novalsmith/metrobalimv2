@@ -6,7 +6,7 @@ class BaseModel
 {
     public string $message = "";
     public string $status = "";
-    public array $data = [];
+    public $data = null;
 
     public function getMessage()
     {
@@ -33,7 +33,7 @@ class BaseModel
         return $this->status = $value;
     }
 
-    public function setData(array $value)
+    public function setData($value)
     {
         return $this->data = $value;
     }

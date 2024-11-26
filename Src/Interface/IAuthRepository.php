@@ -9,6 +9,6 @@ interface IAuthRepository
 {
     public function register(AuthRegister $data): BaseModel;
     public function getUserAuth(AuthRegister $data);
-    public function revokeToken(string $userId): BaseModel;
-    public function refreshToken(string $userId, string $token, string $refreshToken): BaseModel;
+    public function revokeToken(string $userId);
+    public function refreshToken(string $userId);
 }

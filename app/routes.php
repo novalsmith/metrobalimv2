@@ -7,6 +7,7 @@ use App\Src\Controller\CategoryController;
 use App\Src\Utility\Middleware\CategoryValidationMiddleware;
 use App\Src\Utility\Middleware\JwtMiddleware;
 use App\Src\Utility\Middleware\LoginValidationMiddleware;
+use App\Src\Utility\Middleware\RefreshTokenValidationMiddleware;
 use App\Src\Utility\Middleware\RegisterValidationMiddleware;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -23,8 +24,8 @@ return function (App $app) {
     $app->group('/auth', function (Group $group) {
         $group->post('/register', [AuthController::class, 'register'])->add(RegisterValidationMiddleware::class);
         $group->post('/login', [AuthController::class, 'login'])->add(LoginValidationMiddleware::class);
-        // $group->post('/logout', [AuthController::class, 'logout']);
         $group->post('/logout', [AuthController::class, 'logout'])->add(JwtMiddleware::class);
+        $group->post('/refreshToken', [AuthController::class, 'refreshToken'])->add(RefreshTokenValidationMiddleware::class);
 
     });
 

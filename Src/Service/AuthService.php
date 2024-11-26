@@ -7,7 +7,9 @@ use App\Src\Interface\IAuthService;
 use App\Src\Model\AuthRegister;
 use App\Src\Model\BaseModel;
 use App\Src\Utility\Config\Constant;
+use App\Src\Utility\Helper\CacheHelper;
 use App\Src\Utility\Helper\JwtHelper;
+use Slim\Psr7\Request;
 
 class AuthService implements IAuthService
 {
@@ -23,79 +25,85 @@ class AuthService implements IAuthService
         return $register;
     }
 
-    public function getUserAuth(AuthRegister $data): BaseModel
+    public function getUserAuth(AuthRegister $data)
     {
-        $res = new BaseModel;
         // Ambil data dari repository
         $result = $this->authRepository->getUserAuth($data);
         if (!$result) {
-            $res->setMessage("Akun tidak ditemukan");
-            $res->setStatus(Constant::ERROR_STATUS);
-            return $res;
+            throw new \Exception('Invalid username.', 400);
         } else if (!password_verify($data->getPassword(), $result->getPassword())) {
-            $res->setMessage("Password salah");
-            $res->setStatus(Constant::ERROR_STATUS);
-            return $res;
+            throw new \Exception('Invalid password.', 400);
         }
 
         // Konversi peran ke dalam array
         $result->setRoles($result->getRoles());
+        $resultToken = $this->getTokenPayload($result);
 
+        if (!$resultToken["token"] || !$resultToken["refresh"]) {
+            throw new \Exception('Generate token failed.', 400);
+        }
+        // Simpan refresh token ke database
+
+        try {
+            $result = $this->authRepository->refreshToken($result->getId(), $resultToken["token"], $resultToken["refresh"]);
+            return $result;
+        } catch (\Exception $e) {
+            throw new \Exception($e->getMessage(), $e->getCode());
+        }
+    }
+
+    public function revokeToken(string $userId, string $ttl, string $token)
+    {
+        try {
+            $response = $this->authRepository->revokeToken($userId);
+            CacheHelper::blacklistToken($token, $ttl);
+            return $response;
+        } catch (\Exception $e) {
+            throw new \Exception($e->getMessage(), $e->getCode());
+        }
+
+    }
+
+    public function refreshToken(string $token)
+    {
+        $tokenDecode = JwtHelper::decodeExpiredToken($token);
+        $response = $this->authRepository->refreshToken($tokenDecode->data->userId);
+        return $response;
+    }
+
+    public function userContext(Request $request)
+    {
+        return null;
+    }
+
+    private function getTokenPayload(AuthRegister $result): array
+    {
         // Payload untuk access token
         $accessTokenPayload = [
-            'iss' => 'metrobalim.com',
-            'aud' => 'metrobalim.com',
+            'iss' => Constant::Domain,
+            'aud' => Constant::Domain,
             'iat' => time(),
             'exp' => time() + 3600, // Access token berlaku selama 1 jam
-            'data' => [
-                'userId' => $result->getId(),
-                'username' => $result->getUserName(),
-                'roles' => $result->getRoles(),
-            ],
+            'userId' => $result->getId(),
+            'username' => $result->getUserName(),
+            'roles' => $result->getRoles(),
         ];
 
         // Payload untuk refresh token
         $refreshTokenPayload = [
-            'iss' => 'metrobalim.com',
-            'aud' => 'metrobalim.com',
+            'iss' => Constant::Domain,
+            'aud' => Constant::Domain,
             'iat' => time(),
             'exp' => time() + (7 * 24 * 3600), // Refresh token berlaku selama 7 hari
-            'data' => [
-                'userId' => $result->getId(),
-                'username' => $result->getUserName(),
-            ],
+            'userId' => $result->getId(),
+            'username' => $result->getUserName(),
+            'roles' => $result->getRoles(),
         ];
 
-        // Buat access token dan refresh token
-        $accessToken = JwtHelper::createToken($accessTokenPayload);
-        $refreshToken = JwtHelper::createToken($refreshTokenPayload);
-
-        // Simpan refresh token ke database
-
-        $result = $this->authRepository->refreshToken($result->getId(), $accessToken, $refreshToken);
-        if (!$result) {
-            $res->setMessage("Gagal generate token");
-            $res->setStatus(Constant::ERROR_STATUS);
-            return $res;
-        }
-
-        // Kirimkan token dalam respons
-        $res->setMessage("Berhasil login dan generate token");
-        $res->setStatus(Constant::SUCCESS_STATUS);
-        $res->setData(['token' => $accessToken]);
-
-        return $res;
-    }
-
-    public function revokeToken(string $userId): BaseModel
-    {
-        // Ambil data dari repository
-        $response = $this->authRepository->revokeToken($userId);
-        // $data = new BaseModel;
-        // $data->setMessage($response["message"]);
-        // $data->setStatus($response["status"]);
-
-        return $response;
+        return [
+            "token" => JwtHelper::createToken($accessTokenPayload),
+            "refresh" => JwtHelper::createToken($refreshTokenPayload),
+        ];
     }
 
 }

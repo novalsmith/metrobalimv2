@@ -14,6 +14,7 @@ use App\Src\Service\AuthService;
 use App\Src\Service\CategoryService;
 use App\Src\Utility\Middleware\CategoryValidationMiddleware;
 use App\Src\Utility\Middleware\LoginValidationMiddleware;
+use App\Src\Utility\Middleware\RefreshTokenValidationMiddleware;
 use App\Src\Utility\Middleware\RegisterValidationMiddleware;
 use App\Src\Utility\Settings\SettingsInterface;
 use DI\ContainerBuilder;
@@ -94,6 +95,10 @@ return function (ContainerBuilder $containerBuilder) {
 
         LoginValidationMiddleware::class => function (ContainerInterface $c) {
             return new LoginValidationMiddleware();
+        },
+
+        RefreshTokenValidationMiddleware::class => function (ContainerInterface $c) {
+            return new RefreshTokenValidationMiddleware();
         },
 
     ]);

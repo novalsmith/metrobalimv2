@@ -1,85 +1,43 @@
 <?php
 
-namespace App\Src\Utility\Helpers;
+namespace App\Src\Utility\Helper;
 
 class CacheHelper
 {
+    // Metode lain tetap sama...
+
     /**
-     * Menyimpan data ke dalam cache.
+     * Tambahkan token ke dalam daftar blacklist.
      *
-     * @param string $key
-     * @param mixed $value
-     * @param int|null $ttl
+     * @param string $token
+     * @param int $ttl Waktu token tetap berada di cache (detik)
      * @return bool
      */
-    public static function store(string $key, $value, ?int $ttl = null): bool
+    public static function blacklistToken(string $token, int $ttl): bool
     {
         if (!function_exists('apcu_store')) {
             throw new \Exception("APCu is not enabled.");
         }
 
-        return apcu_store($key, $value, $ttl);
+        // Gunakan hash dari token sebagai key untuk keamanan tambahan
+        $key = "blacklist_" . hash('sha256', $token);
+
+        return apcu_store($key, true, $ttl);
     }
 
     /**
-     * Mengambil data dari cache berdasarkan key.
+     * Periksa apakah token ada di blacklist.
      *
-     * @param string $key
-     * @return mixed|null
-     */
-    public static function fetch(string $key)
-    {
-        if (!function_exists('apcu_fetch')) {
-            throw new \Exception("APCu is not enabled.");
-        }
-
-        $success = false;
-        $data = apcu_fetch($key, $success);
-
-        return $success ? $data : null;
-    }
-
-    /**
-     * Menghapus cache berdasarkan key.
-     *
-     * @param string $key
+     * @param string $token
      * @return bool
      */
-    public static function delete(string $key): bool
-    {
-        if (!function_exists('apcu_delete')) {
-            throw new \Exception("APCu is not enabled.");
-        }
-
-        return apcu_delete($key);
-    }
-
-    /**
-     * Membersihkan seluruh cache.
-     *
-     * @return bool
-     */
-    public static function clearAll(): bool
-    {
-        if (!function_exists('apcu_clear_cache')) {
-            throw new \Exception("APCu is not enabled.");
-        }
-
-        apcu_clear_cache();
-        return true;
-    }
-
-    /**
-     * Mengecek apakah key ada di dalam cache.
-     *
-     * @param string $key
-     * @return bool
-     */
-    public static function has(string $key): bool
+    public static function isTokenBlacklisted(string $token): bool
     {
         if (!function_exists('apcu_exists')) {
             throw new \Exception("APCu is not enabled.");
         }
+
+        $key = "blacklist_" . hash('sha256', $token);
 
         return apcu_exists($key);
     }

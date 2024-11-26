@@ -8,56 +8,24 @@ use App\Src\Utility\ResponseEmitter\ResponseEmitter;
 use App\Src\Utility\Settings\SettingsInterface;
 use DI\ContainerBuilder;
 use Dotenv\Dotenv;
+
+require __DIR__ . '/../vendor/autoload.php';
 use Slim\Factory\AppFactory;
 use Slim\Factory\ServerRequestCreatorFactory;
 
-// Menambahkan Dotenv untuk memuat file .env
+putenv('APP_ENV=development');
 
-// use Slim\Psr7\Factory\ServerRequestCreatorFactory;
+// Ambil nilai APP_ENV dari environment variable
+$appEnv = getenv('APP_ENV') ?: 'production'; // Default ke production jika APP_ENV tidak diset
 
-require __DIR__ . '/../vendor/autoload.php';
-
-/*
-Begin sample php APCu cache
-
-if (extension_loaded('apcu')) {
-echo "APCu is enabled.<br>";
-$user = [];
-$user["userId"] = "A12345";
-$user["name"] = "Noval Nauw";
-$user["email"] = "novalsmith69@gmail.com";
-
-apcu_store('my_key', 'my_value');
-
-$value = apcu_fetch('my_key');
-
-// Menampilkan nilai yang diambil dari cache
-if ($value) {
-echo "Cache Value: <br>";
-echo print_r($value);
-apcu_delete('my_key');
-echo "success deleted";
-$value = apcu_fetch('my_key');
-echo print_r($value);
-
-} else {
-echo "No data found in cache.<br>";
-}
-} else {
-echo "APCu is not enabled.<br>";
-}
-return;
-// End sample php APCu cache
- */
-
-// Memuat file .env
-$dotenv = Dotenv::createImmutable(__DIR__ . '/../', '.env.development');
+// Muat file .env sesuai APP_ENV
+$dotenv = Dotenv::createImmutable(__DIR__ . '/../', ".env.$appEnv");
 $dotenv->load();
 
 // Instantiate PHP-DI ContainerBuilder
 $containerBuilder = new ContainerBuilder();
 
-if (false) { // Should be set to true in production
+if ($appEnv === 'production') {
     $containerBuilder->enableCompilation(__DIR__ . '/../var/cache');
 }
 
