@@ -5,6 +5,7 @@ declare (strict_types = 1);
 namespace App\Src\Utility\Middleware;
 
 use App\Src\Utility\Config\Constant;
+use App\Src\Utility\Helper\CacheHelper;
 use App\Src\Utility\Helper\JsonResponseHelper;
 use App\Src\Utility\Helper\JwtHelper;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -39,12 +40,18 @@ class JwtMiddleware
             try {
                 // Validasi dan decode token
                 $decodedData = JwtHelper::verifyToken($token);
+
+                // Cek apakah token telah diblacklist
+                if (CacheHelper::isTokenBlacklisted($authHeader)) {
+                    throw new \Exception("Token has been revoked");
+                }
+
                 if (JwtHelper::isTokenExpired($token)) {
                     throw new \Exception("Token has expired");
                 }
                 $request = $request->withAttribute('userData', $decodedData);
             } catch (\Throwable $e) {
-                return $this->unauthorizedResponse($e->getMessage(), Constant::TOKEN_INVALID);
+                return $this->unauthorizedResponse($e->getMessage(), Constant::TOKEN_EXPIRED);
             }
         }
 

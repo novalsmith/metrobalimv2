@@ -68,6 +68,20 @@ class JwtHelper
         }
     }
 
+    public static function isRefreshTokenExpired(string $token)
+    {
+        try {
+            // Decode token tanpa memverifikasi signature (untuk hanya mendapatkan payload)
+            $token = str_replace('Bearer ', '', $token);
+            $decoded = JWT::decode($token, new Key(self::$secretKey, 'HS256'));
+
+            return $decoded;
+        } catch (\Exception $e) {
+            // Jika error terjadi, anggap token invalid
+            return true;
+        }
+    }
+
     public static function decodeExpiredToken(string $token)
     {
         try {

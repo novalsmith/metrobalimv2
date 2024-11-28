@@ -9,7 +9,6 @@ use App\Src\Model\BaseModel;
 use App\Src\Utility\Config\Constant;
 use App\Src\Utility\Helper\CacheHelper;
 use App\Src\Utility\Helper\JwtHelper;
-use Slim\Psr7\Request;
 
 class AuthService implements IAuthService
 {
@@ -25,28 +24,17 @@ class AuthService implements IAuthService
         return $register;
     }
 
-    public function getUserAuth(AuthRegister $data)
+    public function generateToken(string $userId, $roles)
     {
-        // Ambil data dari repository
-        $result = $this->authRepository->getUserAuth($data);
-        if (!$result) {
-            throw new \Exception('Invalid username.', 400);
-        } else if (!password_verify($data->getPassword(), $result->getPassword())) {
-            throw new \Exception('Invalid password.', 400);
-        }
-
-        // Konversi peran ke dalam array
-        $result->setRoles($result->getRoles());
-        $resultToken = $this->getTokenPayload($result);
-
-        if (!$resultToken["token"] || !$resultToken["refresh"]) {
-            throw new \Exception('Generate token failed.', 400);
-        }
-        // Simpan refresh token ke database
-
         try {
-            $result = $this->authRepository->refreshToken($result->getId(), $resultToken["token"], $resultToken["refresh"]);
-            return $result;
+            $resultToken = $this->getTokenPayload($userId, $roles);
+
+            $result = $this->authRepository->upsertToken($userId, $resultToken["token"], $resultToken["refresh"]);
+            if (!$result) {
+                throw new \Exception('Generate token failed.', 400);
+            }
+            return $resultToken["token"];
+
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage(), $e->getCode());
         }
@@ -66,27 +54,47 @@ class AuthService implements IAuthService
 
     public function refreshToken(string $token)
     {
-        $tokenDecode = JwtHelper::decodeExpiredToken($token);
-        $response = $this->authRepository->refreshToken($tokenDecode->data->userId);
-        return $response;
+        try {
+            $tokenDecode = JwtHelper::decodeExpiredToken($token);
+            if (!$tokenDecode->userId) {
+                throw new \Exception('Invalid Token', 401);
+            }
+
+            $response = $this->authRepository->refreshToken($tokenDecode->userId);
+
+            if (!$response->revokedDate) {
+                throw new \Exception('Invalid Token', 401);
+            }
+
+            $ValidateTokenExpired = JwtHelper::isRefreshTokenExpired($response->refreshToken);
+          
+            return $ValidateTokenExpired;
+        } catch (\Exception $e) {
+            throw new \Exception($e->getMessage(), $e->getCode());
+        }
+
     }
 
-    public function userContext(Request $request)
+    public function getUserById(string $userId)
     {
-        return null;
+        return $this->authRepository->getUserAuth($userId);
     }
 
-    private function getTokenPayload(AuthRegister $result): array
+    private function getTokenPayload(string $userId, $roles): array
     {
+        if (is_string($roles)) {
+            // Assume roles are separated by commas if provided as a string
+            $roles = explode(', ', $roles);
+        }
+
         // Payload untuk access token
         $accessTokenPayload = [
             'iss' => Constant::Domain,
             'aud' => Constant::Domain,
             'iat' => time(),
             'exp' => time() + 3600, // Access token berlaku selama 1 jam
-            'userId' => $result->getId(),
-            'username' => $result->getUserName(),
-            'roles' => $result->getRoles(),
+            'userId' => $userId,
+            'roles' => $roles,
         ];
 
         // Payload untuk refresh token
@@ -95,9 +103,8 @@ class AuthService implements IAuthService
             'aud' => Constant::Domain,
             'iat' => time(),
             'exp' => time() + (7 * 24 * 3600), // Refresh token berlaku selama 7 hari
-            'userId' => $result->getId(),
-            'username' => $result->getUserName(),
-            'roles' => $result->getRoles(),
+            'userId' => $userId,
+            'roles' => $roles,
         ];
 
         return [

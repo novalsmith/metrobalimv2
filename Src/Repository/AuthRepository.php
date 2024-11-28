@@ -21,10 +21,10 @@ class AuthRepository extends BaseRepository implements IAuthRepository
         return $this->executeQueryFetchObject("CreateUser", $params, BaseModel::class);
     }
 
-    public function getUserAuth(AuthRegister $data)
+    public function getUserAuth(string $userId)
     {
         $param = [
-            $data->getUserName(),
+            $userId,
         ];
         $result = $this->executeQueryFetchObject("GetUserAuthCredential", $param, AuthRegister::class);
 
@@ -37,6 +37,17 @@ class AuthRepository extends BaseRepository implements IAuthRepository
             $userId,
         ];
         $response = $this->executeQueryFetchObject("GetUserAuthToken", $param);
+        return $response;
+    }
+
+    public function upsertToken(string $userId, string $token = null, string $refresh = null)
+    {
+        $param = [
+            $userId,
+            $token,
+            $refresh,
+        ];
+        $response = $this->executeQueryFetchObject("UpsertAuthToken", $param);
         return $response;
     }
 

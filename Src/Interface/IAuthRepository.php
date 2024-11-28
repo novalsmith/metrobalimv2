@@ -8,7 +8,8 @@ use App\Src\Model\BaseModel;
 interface IAuthRepository
 {
     public function register(AuthRegister $data): BaseModel;
-    public function getUserAuth(AuthRegister $data);
+    public function getUserAuth(string $userId);
     public function revokeToken(string $userId);
     public function refreshToken(string $userId);
+    public function upsertToken(string $userId, string $token = null, string $refresh = null);
 }

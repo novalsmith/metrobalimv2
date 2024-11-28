@@ -11,9 +11,7 @@ class CategoryRepository extends BaseRepository implements ICategoryRepository
     // Menggunakan Stored Procedure untuk mengambil semua kategori
     public function getAllCategories(): array
     {
-        // return $this->fetchAllAsClass("GetCategory", Category::class);
         return $this->executeQueryFetchAll("GetCategory", [], Category::class);
-
     }
 
 }

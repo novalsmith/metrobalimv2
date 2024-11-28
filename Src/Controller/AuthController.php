@@ -41,13 +41,17 @@ class AuthController
         try {
             $data = $request->getParsedBody();
 
-            $param = new AuthRegister;
-            $param->setUserName($data['username']);
-            $param->setPassword($data['password']);
+            // Ambil data dari repository
+            $result = $this->authService->getUserById($data['username']);
+            if (!$result) {
+                throw new \Exception('Invalid username.', 400);
+            } else if (!password_verify($data['password'], $result->password)) {
+                throw new \Exception('Invalid password.', 400);
+            }
 
-            $result = $this->authService->getUserAuth($param);
+            $result = $this->authService->generateToken($result->userId, $result->roles);
 
-            return JsonResponseHelper::respondWithData($response, $result->accessToken);
+            return JsonResponseHelper::respondWithData($response, $result);
         } catch (\Exception $e) {
             return JsonResponseHelper::respondWithError($response, $e->getMessage(), $e->getCode(), Constant::ERROR_STATUS);
         }
@@ -66,7 +70,7 @@ class AuthController
 
             $result = $this->authService->revokeToken($userId, $ttl, $token);
 
-            return JsonResponseHelper::respondWithData($response, $result->getData());
+            return JsonResponseHelper::respondWithData($response, $result);
         } catch (\Exception $e) {
             return JsonResponseHelper::respondWithError($response, $e->getMessage(), $e->getCode(), Constant::ERROR_STATUS);
         }
@@ -74,9 +78,14 @@ class AuthController
 
     public function refreshToken(Request $request, Response $response): Response
     {
-        $token = $request->getHeaderLine('Authorization');
-        $result = $this->authService->refreshToken($token);
+        try {
+            $token = $request->getHeaderLine('Authorization');
+            $result = $this->authService->refreshToken($token);
+            $resultToken = $this->authService->generateToken($result->userId, $result->roles);
+            return JsonResponseHelper::respondWithData($response, $resultToken);
+        } catch (\Exception $e) {
+            return JsonResponseHelper::respondWithError($response, $e->getMessage(), $e->getCode(), Constant::TOKEN_EXPIRED);
+        }
 
-        return JsonResponseHelper::respondWithData($response, $result->getData());
     }
 }
