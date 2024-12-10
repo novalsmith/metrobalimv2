@@ -4,14 +4,18 @@ declare (strict_types = 1);
 
 use App\Src\Controller\AuthController;
 use App\Src\Controller\CategoryController;
+use App\Src\Controller\LocalStorageController;
 use App\Src\Interface\IAuthRepository;
 use App\Src\Interface\IAuthService;
 use App\Src\Interface\ICategoryRepository;
 use App\Src\Interface\ICategoryService;
+use App\Src\Interface\ILocalStorageService;
 use App\Src\Repository\AuthRepository;
 use App\Src\Repository\CategoryRepository;
 use App\Src\Service\AuthService;
 use App\Src\Service\CategoryService;
+use App\Src\Service\LocalStorageService;
+use App\Src\Utility\Helper\CacheHelper;
 use App\Src\Utility\Middleware\CategoryValidationMiddleware;
 use App\Src\Utility\Middleware\LoginValidationMiddleware;
 use App\Src\Utility\Middleware\RefreshTokenValidationMiddleware;
@@ -62,13 +66,14 @@ return function (ContainerBuilder $containerBuilder) {
         },
         // Auth
 
-        // Tambahkan definisi untuk ICategoryService
+        // Tambahkan definisi untuk IAuthService
         IAuthService::class => function (ContainerInterface $c) {
             // Ambil repository yang diperlukan
             $categoryRepository = $c->get(IAuthRepository::class);
+            $localStorage = $c->get(ILocalStorageService::class);
 
             // Return instance dari CategoryService dengan dependensi yang diinject
-            return new AuthService($categoryRepository);
+            return new AuthService($categoryRepository, $localStorage);
         },
 
         // Definisi untuk ICategoryRepository
@@ -85,21 +90,29 @@ return function (ContainerBuilder $containerBuilder) {
         // Middleware
 
         // Definisi untuk CategoryValidationMiddleware
-        CategoryValidationMiddleware::class => function (ContainerInterface $c) {
+        CategoryValidationMiddleware::class => function () {
             return new CategoryValidationMiddleware();
         },
 
-        RegisterValidationMiddleware::class => function (ContainerInterface $c) {
+        RegisterValidationMiddleware::class => function () {
             return new RegisterValidationMiddleware();
         },
 
-        LoginValidationMiddleware::class => function (ContainerInterface $c) {
+        LoginValidationMiddleware::class => function () {
             return new LoginValidationMiddleware();
         },
 
-        RefreshTokenValidationMiddleware::class => function (ContainerInterface $c) {
+        RefreshTokenValidationMiddleware::class => function () {
             return new RefreshTokenValidationMiddleware();
         },
-
+        ILocalStorageService::class => function (ContainerInterface $c) {
+            return new LocalStorageService($c->get(CacheHelper::class));
+        },
+        CacheHelper::class => function () {
+            return new CacheHelper();
+        },
+        LocalStorageController::class => function (ContainerInterface $c) {
+            return new LocalStorageController($c->get(ILocalStorageService::class));
+        },
     ]);
 };

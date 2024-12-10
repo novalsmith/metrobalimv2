@@ -31,7 +31,6 @@ class JwtHelper
     {
         try {
             $decoded = JWT::decode($token, new Key(self::$secretKey, 'HS256'));
-
             return $decoded;
         } catch (\Firebase\JWT\ExpiredException $e) {
             // Token expired

@@ -4,19 +4,21 @@ namespace App\Src\Service;
 
 use App\Src\Interface\IAuthRepository;
 use App\Src\Interface\IAuthService;
+use App\Src\Interface\ILocalStorageService;
 use App\Src\Model\AuthRegister;
 use App\Src\Model\BaseModel;
 use App\Src\Utility\Config\Constant;
-use App\Src\Utility\Helper\CacheHelper;
 use App\Src\Utility\Helper\JwtHelper;
 
 class AuthService implements IAuthService
 {
     private IAuthRepository $authRepository;
+    private ILocalStorageService $localStorage;
 
-    public function __construct(IAuthRepository $authRepository)
+    public function __construct(IAuthRepository $authRepository, ILocalStorageService $localStorage)
     {
         $this->authRepository = $authRepository;
+        $this->localStorage = $localStorage;
     }
     public function register(AuthRegister $data): BaseModel
     {
@@ -44,8 +46,17 @@ class AuthService implements IAuthService
     {
         try {
             $response = $this->authRepository->revokeToken($userId);
-            CacheHelper::blacklistToken($token, $ttl);
-            return $response;
+            $key = "blacklist_" . hash('sha256', $token);
+            $value = [
+                "key" => $key,
+                "userId" => $userId,
+                "token" => $token,
+                "tokenHash" => $token,
+                "type" => 'blacklist',
+                "response" => $response,
+            ];
+
+            return $this->localStorage->set($key, $value, $ttl);
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage(), $e->getCode());
         }
@@ -67,7 +78,7 @@ class AuthService implements IAuthService
             }
 
             $ValidateTokenExpired = JwtHelper::isRefreshTokenExpired($response->refreshToken);
-          
+
             return $ValidateTokenExpired;
         } catch (\Exception $e) {
             throw new \Exception($e->getMessage(), $e->getCode());

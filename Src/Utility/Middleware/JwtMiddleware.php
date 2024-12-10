@@ -17,8 +17,15 @@ use Slim\Routing\RouteContext;
 class JwtMiddleware
 {
     private $protectedRoutes = [
-        'GET' => ['/^\/categories(\/\d+)?$/'],
-        'POST' => ['/^\/categories$/', '/^\/auth\/logout$/'],
+        'GET' => [
+            'categories' => '/categories', // Rute untuk kategori
+            'cache' => '/cache', // Rute untuk mendapatkan semua cache
+            'cacheId' => '/cache/', // Rute untuk cache dengan ID
+        ],
+        'POST' => [
+            'categories' => '/categories',
+            'authLogout' => '/auth/logout',
+        ],
     ];
 
     public function __invoke(Request $request, RequestHandler $handler): Response
@@ -38,18 +45,21 @@ class JwtMiddleware
             $token = str_replace('Bearer ', '', $authHeader);
 
             try {
-                // Validasi dan decode token
-                $decodedData = JwtHelper::verifyToken($token);
 
                 // Cek apakah token telah diblacklist
-                if (CacheHelper::isTokenBlacklisted($authHeader)) {
+                $key = "blacklist_" . hash('sha256', $authHeader);
+                // throw new \Exception($key);
+                if (CacheHelper::exists($key)) {
                     throw new \Exception("Token has been revoked");
                 }
 
                 if (JwtHelper::isTokenExpired($token)) {
                     throw new \Exception("Token has expired");
                 }
-                $request = $request->withAttribute('userData', $decodedData);
+
+                // Validasi dan decode token
+                $decodedData = JwtHelper::verifyToken($token);
+                $request = $request->withAttribute('userContext', $decodedData);
             } catch (\Throwable $e) {
                 return $this->unauthorizedResponse($e->getMessage(), Constant::TOKEN_EXPIRED);
             }
@@ -58,10 +68,11 @@ class JwtMiddleware
         return $handler->handle($request);
     }
 
-    private function isProtectedRoute(string $method, string $pattern): bool
+    public function isProtectedRoute(string $method, string $pattern): bool
     {
-        foreach ($this->protectedRoutes[$method] ?? [] as $protectedPattern) {
-            if (preg_match($protectedPattern, $pattern)) {
+        $protectedRoutesForMethod = $this->protectedRoutes[$method] ?? [];
+        foreach ($protectedRoutesForMethod as $routeName => $routePattern) {
+            if (strpos($pattern, $routePattern) === 0) {
                 return true;
             }
         }

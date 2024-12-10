@@ -62,7 +62,7 @@ class AuthController
 
         try {
             // Ambil userData dari request yang diset oleh JwtMiddleware
-            $userData = $request->getAttribute("userData");
+            $userData = $request->getAttribute("userContext");
             $token = $request->getHeaderLine('Authorization');
 
             $userId = $userData->userId; // Pastikan $userData bukan null

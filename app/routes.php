@@ -4,6 +4,7 @@ declare (strict_types = 1);
 
 use App\Src\Controller\AuthController;
 use App\Src\Controller\CategoryController;
+use App\Src\Controller\LocalStorageController;
 use App\Src\Utility\Middleware\CategoryValidationMiddleware;
 use App\Src\Utility\Middleware\JwtMiddleware;
 use App\Src\Utility\Middleware\LoginValidationMiddleware;
@@ -34,6 +35,12 @@ return function (App $app) {
         $group->get('', [CategoryController::class, 'getAllCategories']);
         $group->get('/{id}', [CategoryController::class, 'getCategoryById']);
         $group->post('', [CategoryController::class, 'createCategory'])->add(CategoryValidationMiddleware::class);
+    });
+
+    // Local Storage
+    $app->group('/cache', function (Group $group) {
+        $group->get('', [LocalStorageController::class, 'getAllCache']);
+        $group->get('/{id}', [LocalStorageController::class, 'getCacheById']);
     });
 
 };
