@@ -4,8 +4,8 @@ declare (strict_types = 1);
 
 namespace App\Src\Utility\Middleware;
 
+use App\Src\Interface\ILocalStorageService;
 use App\Src\Utility\Config\Constant;
-use App\Src\Utility\Helper\CacheHelper;
 use App\Src\Utility\Helper\JsonResponseHelper;
 use App\Src\Utility\Helper\JwtHelper;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -16,17 +16,24 @@ use Slim\Routing\RouteContext;
 
 class JwtMiddleware
 {
+    private $service;
+
+    // this protectedRoutes depend on routes.php
     private $protectedRoutes = [
         'GET' => [
-            'categories' => '/categories', // Rute untuk kategori
-            'cache' => '/cache', // Rute untuk mendapatkan semua cache
-            'cacheId' => '/cache/', // Rute untuk cache dengan ID
+            'cache' => '/cache',
+            'cacheId' => '/cache/',
         ],
         'POST' => [
             'categories' => '/categories',
             'authLogout' => '/auth/logout',
         ],
     ];
+
+    public function __construct(ILocalStorageService $service)
+    {
+        $this->service = $service;
+    }
 
     public function __invoke(Request $request, RequestHandler $handler): Response
     {
@@ -35,7 +42,6 @@ class JwtMiddleware
         $method = $request->getMethod();
         $pattern = $route ? $route->getPattern() : '';
 
-        // Periksa apakah rute dilindungi
         if ($this->isProtectedRoute($method, $pattern)) {
             $authHeader = $request->getHeaderLine('Authorization');
             if (!$authHeader || strpos($authHeader, 'Bearer ') !== 0) {
@@ -45,11 +51,9 @@ class JwtMiddleware
             $token = str_replace('Bearer ', '', $authHeader);
 
             try {
-
-                // Cek apakah token telah diblacklist
+                // Check if token has been blacklisted
                 $key = "blacklist_" . hash('sha256', $authHeader);
-                // throw new \Exception($key);
-                if (CacheHelper::exists($key)) {
+                if ($this->service->getById($key)) {
                     throw new \Exception("Token has been revoked");
                 }
 
@@ -57,7 +61,7 @@ class JwtMiddleware
                     throw new \Exception("Token has expired");
                 }
 
-                // Validasi dan decode token
+                // Validate and decode token
                 $decodedData = JwtHelper::verifyToken($token);
                 $request = $request->withAttribute('userContext', $decodedData);
             } catch (\Throwable $e) {
@@ -67,7 +71,6 @@ class JwtMiddleware
 
         return $handler->handle($request);
     }
-
     public function isProtectedRoute(string $method, string $pattern): bool
     {
         $protectedRoutesForMethod = $this->protectedRoutes[$method] ?? [];

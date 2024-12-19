@@ -50,4 +50,10 @@ class LocalStorageService implements ILocalStorageService
         return $this->cacheHelper->deleteById($key);
 
     }
+
+    public function populateMMasterData()
+    {
+        // todo
+        return null;
+    }
 }

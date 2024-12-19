@@ -3,6 +3,7 @@
 namespace App\Src\Controller;
 
 use App\Src\Interface\ICategoryService;
+use App\Src\Model\Category;
 use App\Src\Utility\Helper\JsonResponseHelper;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -16,41 +17,28 @@ class CategoryController
         $this->categoryService = $categoryService;
     }
 
-    public function getAllCategories(Request $request, Response $response): Response
+    public function getCategories(Request $request, Response $response): Response
     {
-        $categories = $this->categoryService->getAllCategories();
+        $categories = $this->categoryService->getCategories();
         return JsonResponseHelper::respondWithData($response, $categories);
     }
 
     public function createCategory(Request $request, Response $response): Response
     {
-        $categories = $this->categoryService->getAllCategories();
+        $parsedBody = $request->getParsedBody();
+        $userData = $request->getAttribute("userContext");
+
+        $data = new Category();
+        $data->setName($parsedBody['name']);
+        $data->setParentId($parsedBody['parentId'] ?? null);
+
+        $categories = $this->categoryService->createCategory($data, $userData->userId);
         return JsonResponseHelper::respondWithData($response, $categories);
     }
 
-    public function getArticles($page = 1, $per_page = 1000)
+    public function deleteCategoryById(Request $request, Response $response, $arg): Response
     {
-        $api_key = "54482a2c4da0c689f586a7fd081752554de867cb";
-        $url = "https://rss.promediateknologi.id/api/article?apikey=$api_key&page=$page&per_page=$per_page";
-
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-        $response = curl_exec($ch);
-        if (curl_errno($ch)) {
-            echo 'Error:' . curl_error($ch);
-        }
-        curl_close($ch);
-
-        // Asumsi data yang dikembalikan adalah JSON
-        return json_decode($response, true);
-
-        // if ($data) {
-        //     return $data['articles']; // Sesuaikan dengan struktur JSON yang sebenarnya
-        // } else {
-        //     return [];
-        // }
-
+        $categories = $this->categoryService->deleteCategoryById($arg["id"]);
+        return JsonResponseHelper::respondWithData($response, $categories);
     }
 }
