@@ -24,8 +24,6 @@ class CategoryValidationMiddleware
             $response = $responseFactory->createResponse();
             return JsonResponseHelper::respondWithData($response, $errors, 400);
         }
-
-        // Jika tidak ada error, lanjutkan ke handler berikutnya
         return $handler->handle($request);
     }
 

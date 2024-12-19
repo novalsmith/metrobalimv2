@@ -35,4 +35,10 @@ class LocalStorageController
         $result = $this->service->getById($id);
         return JsonResponseHelper::respondWithData($response, $result);
     }
+
+    public function deleteCache(Request $request, Response $response): Response
+    {
+        $result = $this->service->deleteAll();
+        return JsonResponseHelper::respondWithData($response, $result);
+    }
 }

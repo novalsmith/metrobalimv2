@@ -10,4 +10,5 @@ interface ILocalStorageService
     public function getById(string $key);
     public function deleteAll();
     public function deleteById(string $key);
+    public function populateMMasterData();
 }

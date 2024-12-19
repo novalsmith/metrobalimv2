@@ -17,7 +17,6 @@ use Slim\Interfaces\RouteCollectorProxyInterface as Group;
 
 return function (App $app) {
     $app->options('/{routes:.*}', function (Request $request, Response $response) {
-        // CORS Pre-Flight OPTIONS Request Handler
         return $response;
     });
 
@@ -25,22 +24,25 @@ return function (App $app) {
     $app->group('/auth', function (Group $group) {
         $group->post('/register', [AuthController::class, 'register'])->add(RegisterValidationMiddleware::class);
         $group->post('/login', [AuthController::class, 'login'])->add(LoginValidationMiddleware::class);
-        $group->post('/logout', [AuthController::class, 'logout'])->add(JwtMiddleware::class);
         $group->post('/refreshToken', [AuthController::class, 'refreshToken'])->add(RefreshTokenValidationMiddleware::class);
-
+        $group->post('/logout', [AuthController::class, 'logout'])->add(JwtMiddleware::class);
     });
 
     // Categories
     $app->group('/categories', function (Group $group) {
-        $group->get('', [CategoryController::class, 'getAllCategories']);
+        $group->get('', [CategoryController::class, 'getCategories']);
         $group->get('/{id}', [CategoryController::class, 'getCategoryById']);
-        $group->post('', [CategoryController::class, 'createCategory'])->add(CategoryValidationMiddleware::class);
+        $group->delete('/{id}', [CategoryController::class, 'deleteCategoryById']);
+        $group->post('', [CategoryController::class, 'createCategory'])
+            ->add(CategoryValidationMiddleware::class);
     });
 
     // Local Storage
     $app->group('/cache', function (Group $group) {
-        $group->get('', [LocalStorageController::class, 'getAllCache']);
+        $group->get('/populatemasterdata', [LocalStorageController::class, 'populateMasterData']);
         $group->get('/{id}', [LocalStorageController::class, 'getCacheById']);
-    });
-
+        $group->delete('/{id}', [LocalStorageController::class, 'removeCacheById']);
+        $group->get('', [LocalStorageController::class, 'getAllCache']);
+        $group->delete('', [LocalStorageController::class, 'deleteCache']);
+    })->add(JwtMiddleware::class);
 };
