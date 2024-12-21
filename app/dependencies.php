@@ -5,21 +5,22 @@ declare (strict_types = 1);
 use App\Src\Controller\AuthController;
 use App\Src\Controller\CategoryController;
 use App\Src\Controller\LocalStorageController;
+use App\Src\Controller\TagController;
 use App\Src\Interface\IAuthRepository;
 use App\Src\Interface\IAuthService;
 use App\Src\Interface\ICategoryRepository;
 use App\Src\Interface\ICategoryService;
 use App\Src\Interface\ILocalStorageService;
+use App\Src\Interface\ITagRepository;
+use App\Src\Interface\ITagService;
 use App\Src\Repository\AuthRepository;
 use App\Src\Repository\CategoryRepository;
+use App\Src\Repository\TagRepository;
 use App\Src\Service\AuthService;
 use App\Src\Service\CategoryService;
 use App\Src\Service\LocalStorageService;
+use App\Src\Service\TagService;
 use App\Src\Utility\Helper\CacheHelper;
-use App\Src\Utility\Middleware\CategoryValidationMiddleware;
-use App\Src\Utility\Middleware\LoginValidationMiddleware;
-use App\Src\Utility\Middleware\RefreshTokenValidationMiddleware;
-use App\Src\Utility\Middleware\RegisterValidationMiddleware;
 use App\Src\Utility\Settings\SettingsInterface;
 use DI\ContainerBuilder;
 use Monolog\Handler\StreamHandler;
@@ -30,6 +31,7 @@ use Psr\Log\LoggerInterface;
 
 return function (ContainerBuilder $containerBuilder) {
     $containerBuilder->addDefinitions([
+        // Logger definition with autowiring
         LoggerInterface::class => function (ContainerInterface $c) {
             $settings = $c->get(SettingsInterface::class);
 
@@ -45,74 +47,24 @@ return function (ContainerBuilder $containerBuilder) {
             return $logger;
         },
 
-        // Tambahkan definisi untuk ICategoryService
-        ICategoryService::class => function (ContainerInterface $c) {
-            // Ambil repository yang diperlukan
-            $categoryRepository = $c->get(ICategoryRepository::class);
+        // Autowiring Services
+        ICategoryService::class => \DI\autowire(CategoryService::class),
+        ITagService::class => \DI\autowire(TagService::class),
+        IAuthService::class => \DI\autowire(AuthService::class),
+        ILocalStorageService::class => \DI\autowire(LocalStorageService::class),
 
-            // Return instance dari CategoryService dengan dependensi yang diinject
-            return new CategoryService($categoryRepository);
-        },
+        // Autowiring Repositories
+        ICategoryRepository::class => \DI\autowire(CategoryRepository::class),
+        ITagRepository::class => \DI\autowire(TagRepository::class),
+        IAuthRepository::class => \DI\autowire(AuthRepository::class),
 
-        // Definisi untuk ICategoryRepository
-        ICategoryRepository::class => function (ContainerInterface $c) {
-            // Return instance dari repository yang dibutuhkan
-            return new CategoryRepository($c->get('db'));
-        },
+        // Controllers with their dependencies injected
+        CategoryController::class => \DI\autowire(),
+        TagController::class => \DI\autowire(),
+        AuthController::class => \DI\autowire(),
+        LocalStorageController::class => \DI\autowire(),
 
-        // Definisi untuk CategoryController
-        CategoryController::class => function (ContainerInterface $c) {
-            return new CategoryController($c->get(ICategoryService::class));
-        },
-        // Auth
-
-        // Tambahkan definisi untuk IAuthService
-        IAuthService::class => function (ContainerInterface $c) {
-            // Ambil repository yang diperlukan
-            $categoryRepository = $c->get(IAuthRepository::class);
-            $localStorage = $c->get(ILocalStorageService::class);
-
-            // Return instance dari CategoryService dengan dependensi yang diinject
-            return new AuthService($categoryRepository, $localStorage);
-        },
-
-        // Definisi untuk ICategoryRepository
-        IAuthRepository::class => function (ContainerInterface $c) {
-            // Return instance dari repository yang dibutuhkan
-            return new AuthRepository($c->get('db'));
-        },
-
-        // Definisi untuk CategoryController
-        AuthController::class => function (ContainerInterface $c) {
-            return new AuthController($c->get(IAuthService::class));
-        },
-
-        // Middleware
-
-        // Definisi untuk CategoryValidationMiddleware
-        CategoryValidationMiddleware::class => function () {
-            return new CategoryValidationMiddleware();
-        },
-
-        RegisterValidationMiddleware::class => function () {
-            return new RegisterValidationMiddleware();
-        },
-
-        LoginValidationMiddleware::class => function () {
-            return new LoginValidationMiddleware();
-        },
-
-        RefreshTokenValidationMiddleware::class => function () {
-            return new RefreshTokenValidationMiddleware();
-        },
-        ILocalStorageService::class => function (ContainerInterface $c) {
-            return new LocalStorageService($c->get(CacheHelper::class));
-        },
-        CacheHelper::class => function () {
-            return new CacheHelper();
-        },
-        LocalStorageController::class => function (ContainerInterface $c) {
-            return new LocalStorageController($c->get(ILocalStorageService::class));
-        },
+        // Utility
+        CacheHelper::class => \DI\autowire(),
     ]);
 };

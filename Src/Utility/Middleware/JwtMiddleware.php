@@ -25,8 +25,13 @@ class JwtMiddleware
             'cacheId' => '/cache/',
         ],
         'POST' => [
-            'categories' => '/categories',
             'authLogout' => '/auth/logout',
+            'category' => '/category',
+            'tag' => '/tag',
+        ],
+        'DELETE' => [
+            'category' => '/category',
+            'tag' => '/tag',
         ],
     ];
 

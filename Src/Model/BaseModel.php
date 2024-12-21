@@ -8,6 +8,14 @@ class BaseModel
     public string $status = "";
     public $data = null;
 
+    public function __construct(array $data)
+    {
+        $this->message = $data['message'] ?? '';
+        $this->status = $data['status'] ?? '';
+        $this->data = $data['data'] ?? null;
+
+    }
+
     public function getMessage()
     {
         return $this->message;
@@ -21,21 +29,6 @@ class BaseModel
     public function getData()
     {
         return $this->data;
-    }
-
-    public function setMessage(string $value)
-    {
-        return $this->message = $value;
-    }
-
-    public function setStatus(string $value)
-    {
-        return $this->status = $value;
-    }
-
-    public function setData($value)
-    {
-        return $this->data = $value;
     }
 
 }

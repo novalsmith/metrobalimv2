@@ -26,6 +26,7 @@
         "ext-json": "*",
         "firebase/php-jwt": "^6.10",
         "guzzlehttp/guzzle": "^7.9",
+        "intervention/image": "^3.10",
         "monolog/monolog": "^2.8",
         "php-di/php-di": "^6.4",
         "respect/validation": "^2.3",
@@ -52,7 +53,7 @@
     },
     "autoload": {
         "psr-4": {
-            "App\\Src\\": "src/"
+            "App\\Src\\": "Src/"
         }
     },
     "autoload-dev": {

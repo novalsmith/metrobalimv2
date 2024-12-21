@@ -4,6 +4,8 @@ namespace App\Src\Controller;
 
 use App\Src\Interface\IAuthService;
 use App\Src\Model\AuthRegister;
+use App\Src\Model\Validator\AuthLoginValidator;
+use App\Src\Model\Validator\AuthRegisterValidator;
 use App\Src\Utility\Config\Constant;
 use App\Src\Utility\Helper\JsonResponseHelper;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -20,36 +22,34 @@ class AuthController
 
     public function register(Request $request, Response $response): Response
     {
-        // Mendapatkan data dari request body
-        $parsedBody = $request->getParsedBody();
+        try {
+            $parsedBody = $request->getParsedBody();
+            AuthRegisterValidator::validate($parsedBody);
 
-        // Membuat instance AuthRegister dan mengisi datanya
-        $data = new AuthRegister();
-        $data->setName($parsedBody['name']);
-        $data->setUserName($parsedBody['userName']);
-        $data->setEmail($parsedBody['email']);
-        $data->setPassword($parsedBody['password']);
+            $data = new AuthRegister($parsedBody);
+            $result = $this->authService->register($data);
+            return JsonResponseHelper::respondWithData($response, $result);
 
-        // Meneruskan model yang sudah diisi ke service
-        $result = $this->authService->register($data);
-
-        return JsonResponseHelper::respondWithData($response, $result);
+        } catch (\Exception $e) {
+            return JsonResponseHelper::respondWithError($response, $e->getMessage(), $e->getCode(), Constant::ERROR_STATUS);
+        }
     }
 
     public function login(Request $request, Response $response): Response
     {
         try {
             $data = $request->getParsedBody();
+            AuthLoginValidator::validate($data);
 
             // Ambil data dari repository
-            $result = $this->authService->getUserById($data['username']);
-            if (!$result) {
-                throw new \Exception('Invalid username.', 400);
-            } else if (!password_verify($data['password'], $result->password)) {
+            $result = $this->authService->validateEmail($data['email']);
+            if (empty($result->getUserId())) {
+                throw new \Exception('Invalid email.', 400);
+            } else if (!password_verify($data['password'], $result->getPassword())) {
                 throw new \Exception('Invalid password.', 400);
             }
 
-            $result = $this->authService->generateToken($result->userId, $result->roles);
+            $result = $this->authService->generateToken($result->getUserId(), $result->getRoles());
 
             return JsonResponseHelper::respondWithData($response, $result);
         } catch (\Exception $e) {
@@ -64,7 +64,6 @@ class AuthController
             // Ambil userData dari request yang diset oleh JwtMiddleware
             $userData = $request->getAttribute("userContext");
             $token = $request->getHeaderLine('Authorization');
-
             $userId = $userData->userId; // Pastikan $userData bukan null
             $ttl = $userData->exp - time();
 
@@ -80,6 +79,11 @@ class AuthController
     {
         try {
             $token = $request->getHeaderLine('Authorization');
+
+            if (empty($token)) {
+                throw new \Exception('Token tidak boleh kosong', 401);
+            }
+
             $result = $this->authService->refreshToken($token);
             $resultToken = $this->authService->generateToken($result->userId, $result->roles);
             return JsonResponseHelper::respondWithData($response, $resultToken);

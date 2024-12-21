@@ -19,6 +19,25 @@ class Constant
     public const TOKEN_REVOKED = "TOKEN_REVOKED";
     public const TOKEN_MISSING = "TOKEN_MISSING";
 
+    // Folder Paths
+    public const ImagePath = __DIR__ . '/uploads';
+    public const ImageThumbnailPath = __DIR__ . '/uploads/thumbnails';
+
+    /*
+    ImageCacheAge in second
+    sample 31536000
+    1 day = 24 hours x 60 minutes x 60 seconds = 86.400 seconds
+    31.536.000 seconds ÷ 86.400 seconds/day = 365 hours
+    So,31536000 = 1 Year.
+
+    another sample
+
+    1 month: 30 * 24 * 60 * 60 = 2.592.000 seconds
+    1 week: 7 * 24 * 60 * 60 = 604.800 seconds
+    1 hour: 1 * 60 * 60 = 3600 seconds
+     */
+    public const ImageCacheAge = '31536000';
+
     // Private constructor untuk mencegah pembuatan instance dari luar class
     private function __construct()
     {}

@@ -4,14 +4,24 @@ namespace App\Src\Model;
 
 class AuthRegister
 {
-    public string $userId;
-    public string $name;
-    public string $username;
-    public string $email;
-    public string $password;
-    public $roles;
+    private string $userId;
+    private string $name;
+    private string $email;
+    private string $password;
+    private array $roles;
 
-    public function getId(): string
+    // Konstruktor untuk menginisialisasi properti menggunakan array
+    public function __construct(array $data)
+    {
+        $this->userId = $data['userId'] ?? ''; // Default ke string kosong jika tidak ada
+        $this->name = $data['name'] ?? ''; // Default ke string kosong jika tidak ada
+        $this->email = $data['email'] ?? ''; // Default ke string kosong jika tidak ada
+        $this->password = $data['password'] ?? ''; // Default ke string kosong jika tidak ada
+        $this->roles = $this->setRoles($data['roles'] ?? ["user"]); // Default ke array kosong jika tidak ada
+    }
+
+    // Getter untuk setiap properti
+    public function getUserId(): string
     {
         return $this->userId;
     }
@@ -19,11 +29,6 @@ class AuthRegister
     public function getName(): string
     {
         return $this->name;
-    }
-
-    public function getUserName(): string
-    {
-        return $this->username;
     }
 
     public function getEmail(): string
@@ -36,39 +41,11 @@ class AuthRegister
         return $this->password;
     }
 
-    public function getRoles()
+    public function getRoles(): array
     {
         return $this->roles;
     }
 
-    public function setId($userId): string
-    {
-        return $this->userId = $userId;
-    }
-
-    public function setName($name): string
-    {
-        return $this->name = $name;
-    }
-
-    public function setUserName($userName): string
-    {
-        return $this->username = $userName;
-    }
-
-    public function setEmail($email): string
-    {
-        return $this->email = $email;
-    }
-
-    public function setPassword($password): string
-    {
-        return $this->password = $password;
-    }
-
-    /**
-     * Set the roles and convert to array if necessary
-     */
     public function setRoles($roles): array
     {
         if (is_string($roles)) {
@@ -77,33 +54,5 @@ class AuthRegister
         }
 
         return $this->roles = $roles;
-    }
-
-    // Method to populate the model with an array of data using setters
-    public function fromArray(array $data): void
-    {
-        if (isset($data['userId'])) {
-            $this->setId($data['userId']);
-        }
-
-        if (isset($data['name'])) {
-            $this->setName($data['name']);
-        }
-
-        if (isset($data['username'])) {
-            $this->setUserName($data['username']);
-        }
-
-        if (isset($data['email'])) {
-            $this->setEmail($data['email']);
-        }
-
-        if (isset($data['password'])) {
-            $this->setPassword($data['password']);
-        }
-
-        if (isset($data['roles'])) {
-            $this->setRoles($data['roles']);
-        }
     }
 }
