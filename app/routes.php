@@ -4,12 +4,14 @@ declare (strict_types = 1);
 
 use App\Src\Controller\AuthController;
 use App\Src\Controller\CategoryController;
+use App\Src\Controller\ImageController;
 use App\Src\Controller\LocalStorageController;
 use App\Src\Controller\TagController;
 use App\Src\Model\Validator\AuthLoginValidator;
 use App\Src\Model\Validator\AuthRegisterValidator;
 use App\Src\Model\Validator\CategoryValidator;
 use App\Src\Model\Validator\TagValidator;
+use App\Src\Utility\Middleware\ImageMiddleware;
 use App\Src\Utility\Middleware\JwtMiddleware;
 use App\Src\Utility\Middleware\ValidationMiddleware;
 use Psr\Http\Message\ResponseInterface as Response;
@@ -61,4 +63,10 @@ return function (App $app) {
         $group->get('', [LocalStorageController::class, 'getAllCache']);
         $group->delete('', [LocalStorageController::class, 'deleteCache']);
     })->add(JwtMiddleware::class);
+
+    // Local Storage
+    $app->group('/image', function (Group $group) {
+        $group->post('/upload', [ImageController::class, 'upload']);
+    })->add(ImageMiddleware::class);
+
 };
