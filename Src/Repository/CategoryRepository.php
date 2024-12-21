@@ -16,7 +16,7 @@ class CategoryRepository extends BaseRepository implements ICategoryRepository
     public function createCategory(Category $data, string $userId): BaseModel
     {
         $params = [
-            $data->getName(),
+            $data->getCategoryName(),
             $data->getParentId(),
             $userId,
         ];

@@ -10,8 +10,4 @@ return function (App $app) {
     // Menambahkan middleware sesi
     $app->add(SessionMiddleware::class);
     $app->add(JwtMiddleware::class);
-
-    // Middleware untuk validasi input
-    // $app->add($app->getContainer()->get(InputValidationMiddleware::class));
-
 };

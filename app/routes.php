@@ -5,11 +5,13 @@ declare (strict_types = 1);
 use App\Src\Controller\AuthController;
 use App\Src\Controller\CategoryController;
 use App\Src\Controller\LocalStorageController;
-use App\Src\Utility\Middleware\CategoryValidationMiddleware;
+use App\Src\Controller\TagController;
+use App\Src\Model\Validator\AuthLoginValidator;
+use App\Src\Model\Validator\AuthRegisterValidator;
+use App\Src\Model\Validator\CategoryValidator;
+use App\Src\Model\Validator\TagValidator;
 use App\Src\Utility\Middleware\JwtMiddleware;
-use App\Src\Utility\Middleware\LoginValidationMiddleware;
-use App\Src\Utility\Middleware\RefreshTokenValidationMiddleware;
-use App\Src\Utility\Middleware\RegisterValidationMiddleware;
+use App\Src\Utility\Middleware\ValidationMiddleware;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\App;
@@ -22,19 +24,33 @@ return function (App $app) {
 
     // Auth
     $app->group('/auth', function (Group $group) {
-        $group->post('/register', [AuthController::class, 'register'])->add(RegisterValidationMiddleware::class);
-        $group->post('/login', [AuthController::class, 'login'])->add(LoginValidationMiddleware::class);
-        $group->post('/refreshToken', [AuthController::class, 'refreshToken'])->add(RefreshTokenValidationMiddleware::class);
+        $group->post('/register', [AuthController::class, 'register'])
+            ->add(new ValidationMiddleware(AuthRegisterValidator::class));
+
+        $group->post('/login', [AuthController::class, 'login'])
+            ->add(new ValidationMiddleware(AuthLoginValidator::class));
+
+        $group->post('/refreshToken', [AuthController::class, 'refreshToken']);
+
         $group->post('/logout', [AuthController::class, 'logout'])->add(JwtMiddleware::class);
     });
 
     // Categories
-    $app->group('/categories', function (Group $group) {
-        $group->get('', [CategoryController::class, 'getCategories']);
+    $app->group('/category', function (Group $group) {
+        $group->get('', [CategoryController::class, 'getCategory']);
         $group->get('/{id}', [CategoryController::class, 'getCategoryById']);
-        $group->delete('/{id}', [CategoryController::class, 'deleteCategoryById']);
+        $group->delete('', [CategoryController::class, 'deleteCategoryById']);
         $group->post('', [CategoryController::class, 'createCategory'])
-            ->add(CategoryValidationMiddleware::class);
+            ->add(new ValidationMiddleware(CategoryValidator::class));
+
+    });
+
+    // Tag
+    $app->group('/tag', function (Group $group) {
+        $group->get('', [TagController::class, 'getTags']);
+        $group->delete('/{id}', [TagController::class, 'deleteTagById']);
+        $group->post('', [TagController::class, 'createTag'])
+            ->add(new ValidationMiddleware(TagValidator::class));
     });
 
     // Local Storage

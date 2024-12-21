@@ -1,20 +1,27 @@
 <?php
-
 namespace App\Src\Model;
 
 class Category
 {
-    private ?int $categoryId = 0;
+    private ?int $categoryId;
     private string $categoryName;
-    private ?int $parentId = null;
-    private ?string $parentCategory = null;
+    private ?string $parentCategory;
+    private ?int $parentId;
 
-    public function getId(): int
+    public function __construct(array $data)
+    {
+        $this->categoryId = $data['categoryId'] ?? null;
+        $this->categoryName = $data['categoryName'];
+        $this->parentId = $data['parentId'] ?? null;
+        $this->parentCategory = $data['parentCategory'] ?? null;
+    }
+
+    public function getCategoryId(): ?int
     {
         return $this->categoryId;
     }
 
-    public function getName(): string
+    public function getCategoryName(): string
     {
         return $this->categoryName;
     }
@@ -27,25 +34,5 @@ class Category
     public function getParentCategory(): ?string
     {
         return $this->parentCategory;
-    }
-
-    public function setId($categoryId): int
-    {
-        return $this->categoryId = $categoryId;
-    }
-
-    public function setName($categoryName): string
-    {
-        return $this->categoryName = $categoryName;
-    }
-
-    public function setParentId($parentId): ?int
-    {
-        return $this->parentId = $parentId;
-    }
-
-    public function setParentCategory($parentCategory): ?string
-    {
-        return $this->parentCategory = $parentCategory;
     }
 }

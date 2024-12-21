@@ -12,4 +12,5 @@ interface IAuthService
     public function revokeToken(string $userId, string $ttl, string $token);
     public function refreshToken(string $userId);
     public function getUserById(string $userId);
+    public function validateEmail(string $email);
 }

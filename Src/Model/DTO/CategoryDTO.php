@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Src\DTO;
+namespace App\Src\Model\DTO;
 
 class CategoryDTO
 {
@@ -15,25 +15,5 @@ class CategoryDTO
         $this->categoryName = $category_name;
         $this->parentId = $parentId;
         $this->parentCategory = $parentCategory;
-    }
-
-    public function getId(): int
-    {
-        return $this->categoryId;
-    }
-
-    public function getName(): string
-    {
-        return $this->categoryName;
-    }
-
-    public function getParentId(): ?int
-    {
-        return $this->parentId;
-    }
-
-    public function getParentCategory(): ?string
-    {
-        return $this->parentCategory;
     }
 }

@@ -21,7 +21,18 @@ class BaseRepository
 
             $stmt = $this->db->prepare($query);
             $stmt->execute($params);
-            return $stmt->fetchObject($modelClass);
+
+            // Cek apakah modelClass diberikan dan buat objek dengan data yang diambil
+            if ($modelClass) {
+                $data = $stmt->fetch(PDO::FETCH_ASSOC); // Ambil data sebagai array
+                if ($data) {
+                    return new $modelClass($data); // Pemetaan data ke konstruktor model
+                }
+            } else {
+                return $stmt->fetchObject($modelClass);
+            }
+
+            return null;
         } catch (\PDOException $e) {
             // Log the database error
             error_log("Database error in executeQueryFetchObject: " . $e->getMessage());
@@ -40,9 +51,13 @@ class BaseRepository
             $stmt->execute($params);
 
             if ($modelClass) {
-                return $singleResult
-                ? $stmt->fetchObject($modelClass)
-                : $stmt->fetchAll(PDO::FETCH_CLASS | PDO::FETCH_PROPS_LATE, $modelClass);
+                // Jika modelClass diberikan, maka kita buat objek dari hasil query
+                $data = $stmt->fetchAll(PDO::FETCH_ASSOC); // Ambil data sebagai array
+
+                // Pemetaan data ke objek model
+                return array_map(function ($row) use ($modelClass) {
+                    return new $modelClass($row); // Mengirimkan data ke konstruktor model
+                }, $data);
             }
 
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -53,5 +68,4 @@ class BaseRepository
             throw new \RuntimeException("Failed to execute stored procedure: {$procedureName}");
         }
     }
-
 }

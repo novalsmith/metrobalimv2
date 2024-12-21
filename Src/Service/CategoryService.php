@@ -2,11 +2,11 @@
 
 namespace App\Src\Service;
 
-use App\Src\DTO\CategoryDTO;
 use App\Src\Interface\ICategoryRepository;
 use App\Src\Interface\ICategoryService;
 use App\Src\Model\BaseModel;
 use App\Src\Model\Category;
+use App\Src\Model\DTO\CategoryDTO;
 
 class CategoryService implements ICategoryService
 {
@@ -21,8 +21,8 @@ class CategoryService implements ICategoryService
     {
         $categories = $this->categoryRepository->getCategories();
 
-        return array_map(function ($category) {
-            return new CategoryDTO($category->getId(), $category->getName(), $category->getParentId(), $category->getParentCategory());
+        return array_map(function ($result) {
+            return new CategoryDTO($result->getCategoryId(), $result->getCategoryName(), $result->getParentId(), $result->getParentCategory());
         }, $categories);
     }
 

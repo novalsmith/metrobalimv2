@@ -14,17 +14,27 @@ class AuthRepository extends BaseRepository implements IAuthRepository
         $params = [
             $data->getName(),
             $data->getEmail(),
-            $data->getUserName(),
+            $data->getUserId(),
             password_hash($data->getPassword(), PASSWORD_BCRYPT),
         ];
 
         return $this->executeQueryFetchObject("CreateUser", $params, BaseModel::class);
     }
 
-    public function getUserAuth(string $userId)
+    public function getUserById(string $userId)
     {
         $param = [
             $userId,
+        ];
+        $result = $this->executeQueryFetchObject("GetUserById", $param, AuthRegister::class);
+
+        return $result;
+    }
+
+    public function validateEmail(string $email)
+    {
+        $param = [
+            $email,
         ];
         $result = $this->executeQueryFetchObject("GetUserAuthCredential", $param, AuthRegister::class);
 

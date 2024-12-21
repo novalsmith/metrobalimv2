@@ -73,8 +73,8 @@ class AuthService implements IAuthService
 
             $response = $this->authRepository->refreshToken($tokenDecode->userId);
 
-            if (!$response->revokedDate) {
-                throw new \Exception('Invalid Token', 401);
+            if ($response->revokedDate) {
+                throw new \Exception('Invalid Token 3', 401);
             }
 
             $ValidateTokenExpired = JwtHelper::isRefreshTokenExpired($response->refreshToken);
@@ -88,7 +88,12 @@ class AuthService implements IAuthService
 
     public function getUserById(string $userId)
     {
-        return $this->authRepository->getUserAuth($userId);
+        return $this->authRepository->getUserById($userId);
+    }
+
+    public function validateEmail(string $email)
+    {
+        return $this->authRepository->validateEmail($email);
     }
 
     private function getTokenPayload(string $userId, $roles): array
