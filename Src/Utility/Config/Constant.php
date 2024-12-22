@@ -20,8 +20,17 @@ class Constant
     public const TOKEN_MISSING = "TOKEN_MISSING";
 
     // Folder Paths
-    public const ImagePath = __DIR__ . '/uploads';
-    public const ImageThumbnailPath = __DIR__ . '/uploads/thumbnails';
+    public const ImagePath = __DIR__ . '/../../../public/images/original';
+    public const ImageThumbnailPath = __DIR__ . '/../../../public/images/thumbnails';
+
+    public const ImageRatioFeatured_Width = 1280; // 16:9featured
+    public const ImageRatioFeatured_Height = 720;
+
+    public const ImageRatioArticle_Width = 800; // 4:3 thumbnail article
+    public const ImageRatioArticle_Height = 600;
+
+    public const ImageRatioSmall_Width = 320; // 4:3 small thumbnail article
+    public const ImageRatioSmall_Height = 240;
 
     /*
     ImageCacheAge in second

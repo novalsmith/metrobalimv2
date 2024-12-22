@@ -2,7 +2,7 @@
 
 namespace App\Src\Controller;
 
-use App\Src\Interface\ICategoryService;
+use App\Src\Interface\IImageService;
 use App\Src\Utility\Config\Constant;
 use App\Src\Utility\Helper\JsonResponseHelper;
 use Intervention\Image\ImageManager;
@@ -12,11 +12,11 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
 class ImageController
 {
-    private ICategoryService $categoryService;
+    private IImageService $imageService;
 
-    public function __construct(ICategoryService $categoryService)
+    public function __construct(IImageService $imageService)
     {
-        $this->categoryService = $categoryService;
+        $this->imageService = $imageService;
     }
 
     public function upload(Request $request, Response $response): Response
@@ -25,25 +25,25 @@ class ImageController
             $uploadedFiles = $request->getUploadedFiles();
             $responseData = [];
 
+            $this->imageService->upload($uploadedFiles);
+
             foreach ($uploadedFiles as $uploadedFile) {
                 if ($uploadedFile->getError() === UPLOAD_ERR_OK) {
                     $originalName = pathinfo($uploadedFile->getClientFilename(), PATHINFO_FILENAME);
                     $extension = pathinfo($uploadedFile->getClientFilename(), PATHINFO_EXTENSION);
                     $newName = bin2hex(random_bytes(8)) . "." . $extension;
 
-                    $uploadedFile->moveTo(Constant::ImagePath . DIRECTORY_SEPARATOR . $newName);
+                    $newPath = Constant::ImagePath . DIRECTORY_SEPARATOR . date('Y') . DIRECTORY_SEPARATOR . date('m') . DIRECTORY_SEPARATOR . $newName;
+                    ImageManager::gd()->read($newPath)
+                        ->scale(Constant::ImageRatioArticle_Height, Constant::ImageRatioArticle_Width);
+
+                    $uploadedFile->moveTo($newPath);
 
                     $thumbnailName = "thumb_" . $newName;
-                    $thumbnailFullPath = Constant::ImageThumbnailPath . DIRECTORY_SEPARATOR . $thumbnailName;
+                    $thumbnailFullPath = Constant::ImageThumbnailPath . DIRECTORY_SEPARATOR . date('Y') . DIRECTORY_SEPARATOR . date('m') . DIRECTORY_SEPARATOR . $thumbnailName;
 
-                    // $manager = new ImageManager(new Driver());
-
-                    // create new image instance with 800 x 600 (4:3)
-                    $image = ImageManager::gd()->read(Constant::ImagePath . DIRECTORY_SEPARATOR . $newName);
-
-                    // scale to 120 x 100 pixel
-                    $image->scale(120, 100); // 120 x 90 (4:3)
-                    $image->save($thumbnailFullPath);
+                    ImageManager::gd()->read($newPath)
+                        ->scale(800, 600)->save($thumbnailFullPath);
 
                     $responseData[] = [
                         'original_name' => $originalName,
