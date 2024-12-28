@@ -27,13 +27,17 @@ class ImageMiddleware
         $method = $request->getMethod();
         $pattern = $route ? $route->getPattern() : '';
 
+        // Tangani path gambar dengan tahun/bulan
+        $imagePathPrefix = Constant::ImagePath . DIRECTORY_SEPARATOR . date('Y') . DIRECTORY_SEPARATOR . date('m') . DIRECTORY_SEPARATOR;
+        $thumbnailPathPrefix = Constant::ImageThumbnailPath . DIRECTORY_SEPARATOR . date('Y') . DIRECTORY_SEPARATOR . date('m') . DIRECTORY_SEPARATOR;
+
         // Create folder if not exist
-        if (!is_dir(Constant::ImagePath)) {
-            mkdir(Constant::ImagePath, 0777, true);
+        if (!is_dir($imagePathPrefix)) {
+            mkdir($imagePathPrefix, 0777, true);
         }
 
-        if (!is_dir(Constant::ImageThumbnailPath)) {
-            mkdir(Constant::ImageThumbnailPath, 0777, true);
+        if (!is_dir($thumbnailPathPrefix)) {
+            mkdir($thumbnailPathPrefix, 0777, true);
         }
 
         // Handle the request

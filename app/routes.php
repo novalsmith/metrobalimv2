@@ -10,6 +10,7 @@ use App\Src\Controller\TagController;
 use App\Src\Model\Validator\AuthLoginValidator;
 use App\Src\Model\Validator\AuthRegisterValidator;
 use App\Src\Model\Validator\CategoryValidator;
+use App\Src\Model\Validator\ImageValidator;
 use App\Src\Model\Validator\TagValidator;
 use App\Src\Utility\Middleware\ImageMiddleware;
 use App\Src\Utility\Middleware\JwtMiddleware;
@@ -66,7 +67,10 @@ return function (App $app) {
 
     // Local Storage
     $app->group('/image', function (Group $group) {
-        $group->post('/upload', [ImageController::class, 'upload']);
-    })->add(ImageMiddleware::class);
-
+        $group->post('/list', [ImageController::class, 'listImage']);
+        $group->delete('', [ImageController::class, 'deleteImage']);
+        $group->post('/upload', [ImageController::class, 'upload'])
+            ->add(new ValidationMiddleware(ImageValidator::class))
+            ->add(ImageMiddleware::class);
+    });
 };

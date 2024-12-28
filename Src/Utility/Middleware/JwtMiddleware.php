@@ -28,10 +28,12 @@ class JwtMiddleware
             'authLogout' => '/auth/logout',
             'category' => '/category',
             'tag' => '/tag',
+            'imageupload' => '/image/upload',
         ],
         'DELETE' => [
             'category' => '/category',
             'tag' => '/tag',
+            'deleteImage' => '/image',
         ],
     ];
 

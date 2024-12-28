@@ -19,10 +19,26 @@ class ValidationMiddleware
 
     public function __invoke(Request $request, RequestHandler $handler): Response
     {
-        $data = json_decode($request->getBody()->getContents(), true);
+        // Ambil parsed body (data input value)
+        $data = $request->getParsedBody();
+
+        // Ambil uploaded files
+        $uploadedFiles = $request->getUploadedFiles();
+
+        // Gabungkan data input value dengan informasi file (jika ada)
+        if (!empty($uploadedFiles)) {
+            foreach ($uploadedFiles as $key => $file) {
+                $data[$key] = $file; // Tambahkan file ke dalam data
+            }
+        }
+
+        // Pastikan data adalah array
+        if (!is_array($data)) {
+            $data = []; // Default ke array kosong jika tidak ada data
+        }
 
         try {
-            // Panggil metode validasi statis dari model
+            // Panggil metode validasi dari model
             $this->modelClass::validate($data);
         } catch (\InvalidArgumentException $e) {
             $responseFactory = new ResponseFactory();

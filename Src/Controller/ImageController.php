@@ -2,63 +2,85 @@
 
 namespace App\Src\Controller;
 
-use App\Src\Interface\ICategoryService;
-use App\Src\Utility\Config\Constant;
+use App\Src\Interface\IImageService;
 use App\Src\Utility\Helper\JsonResponseHelper;
-use Intervention\Image\ImageManager;
+use DateTime;
 use InvalidArgumentException;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 
 class ImageController
 {
-    private ICategoryService $categoryService;
+    private IImageService $imageService;
 
-    public function __construct(ICategoryService $categoryService)
+    public function __construct(IImageService $imageService)
     {
-        $this->categoryService = $categoryService;
+        $this->imageService = $imageService;
     }
 
     public function upload(Request $request, Response $response): Response
     {
         try {
-            $uploadedFiles = $request->getUploadedFiles();
-            $responseData = [];
-
-            foreach ($uploadedFiles as $uploadedFile) {
-                if ($uploadedFile->getError() === UPLOAD_ERR_OK) {
-                    $originalName = pathinfo($uploadedFile->getClientFilename(), PATHINFO_FILENAME);
-                    $extension = pathinfo($uploadedFile->getClientFilename(), PATHINFO_EXTENSION);
-                    $newName = bin2hex(random_bytes(8)) . "." . $extension;
-
-                    $uploadedFile->moveTo(Constant::ImagePath . DIRECTORY_SEPARATOR . $newName);
-
-                    $thumbnailName = "thumb_" . $newName;
-                    $thumbnailFullPath = Constant::ImageThumbnailPath . DIRECTORY_SEPARATOR . $thumbnailName;
-
-                    // $manager = new ImageManager(new Driver());
-
-                    // create new image instance with 800 x 600 (4:3)
-                    $image = ImageManager::gd()->read(Constant::ImagePath . DIRECTORY_SEPARATOR . $newName);
-
-                    // scale to 120 x 100 pixel
-                    $image->scale(120, 100); // 120 x 90 (4:3)
-                    $image->save($thumbnailFullPath);
-
-                    $responseData[] = [
-                        'original_name' => $originalName,
-                        'file_url' => Constant::ImagePath . "/$newName",
-                        'thumbnail_url' => Constant::ImageThumbnailPath . "/$thumbnailName",
-                    ];
-
-                }
-            }
+            $responseData = $this->imageService->uploadImage($request);
             return JsonResponseHelper::respondWithData($response, $responseData);
         } catch (InvalidArgumentException $e) {
             return JsonResponseHelper::respondWithError($response, $e->getMessage(), 400);
+        } catch (\Exception $e) {
+            return JsonResponseHelper::respondWithError($response, 'Internal Server Error', 500);
         }
+    }
 
-        // $response->getBody()->write(json_encode(['message' => 'Files uploaded successfully', 'data' => $responseData]));
-        // return $response->withHeader('Content-Type', 'application/json');
+    public function listImage(Request $request, Response $response): Response
+    {
+        try {
+            $parsedBody = $request->getParsedBody();
+            $monthYear = null;
+            $imageId = null;
+
+            if (empty($parsedBody)) {
+                throw new InvalidArgumentException('Payload tidak boleh kosong');
+            }
+
+            if (isset($parsedBody["dateFilter"])) {
+                $dateFilter = $parsedBody["dateFilter"];
+                try {
+                    $dateObject = new DateTime($dateFilter);
+                    $monthYear = $dateObject;
+                } catch (\Exception $e) {
+                    throw new InvalidArgumentException('Tanggal tidak valid');
+                }
+            } else if (isset($parsedBody["imageId"])) {
+                $imageId = $parsedBody["imageId"];
+            }
+
+            $responseData = $this->imageService->getImage($imageId, $monthYear);
+            return JsonResponseHelper::respondWithData($response, $responseData);
+        } catch (InvalidArgumentException $e) {
+            return JsonResponseHelper::respondWithError($response, $e->getMessage(), 400);
+        } catch (\Exception $e) {
+            return JsonResponseHelper::respondWithError($response, 'Internal Server Error', 500);
+        }
+    }
+
+    public function deleteImage(Request $request, Response $response): Response
+    {
+        try {
+            $parsedBody = $request->getParsedBody();
+
+            if (empty($parsedBody)) {
+                throw new InvalidArgumentException('Payload tidak boleh kosong');
+            }
+
+            if (empty($parsedBody["imageId"])) {
+                throw new InvalidArgumentException('Id tidak boleh kosong');
+            }
+
+            $responseData = $this->imageService->deleteImage($parsedBody["imageId"]);
+            return JsonResponseHelper::respondWithData($response, $responseData);
+        } catch (InvalidArgumentException $e) {
+            return JsonResponseHelper::respondWithError($response, $e->getMessage(), 400);
+        } catch (\Exception $e) {
+            return JsonResponseHelper::respondWithError($response, $e->getMessage(), $e->getCode());
+        }
     }
 }
