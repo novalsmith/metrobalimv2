@@ -4,20 +4,25 @@ declare (strict_types = 1);
 
 use App\Src\Controller\AuthController;
 use App\Src\Controller\CategoryController;
+use App\Src\Controller\ImageController;
 use App\Src\Controller\LocalStorageController;
 use App\Src\Controller\TagController;
 use App\Src\Interface\IAuthRepository;
 use App\Src\Interface\IAuthService;
 use App\Src\Interface\ICategoryRepository;
 use App\Src\Interface\ICategoryService;
+use App\Src\Interface\IImageRepository;
+use App\Src\Interface\IImageService;
 use App\Src\Interface\ILocalStorageService;
 use App\Src\Interface\ITagRepository;
 use App\Src\Interface\ITagService;
 use App\Src\Repository\AuthRepository;
 use App\Src\Repository\CategoryRepository;
+use App\Src\Repository\ImageRepository;
 use App\Src\Repository\TagRepository;
 use App\Src\Service\AuthService;
 use App\Src\Service\CategoryService;
+use App\Src\Service\ImageService;
 use App\Src\Service\LocalStorageService;
 use App\Src\Service\TagService;
 use App\Src\Utility\Helper\CacheHelper;
@@ -52,17 +57,20 @@ return function (ContainerBuilder $containerBuilder) {
         ITagService::class => \DI\autowire(TagService::class),
         IAuthService::class => \DI\autowire(AuthService::class),
         ILocalStorageService::class => \DI\autowire(LocalStorageService::class),
+        IImageService::class => \DI\autowire(ImageService::class),
 
         // Autowiring Repositories
         ICategoryRepository::class => \DI\autowire(CategoryRepository::class),
         ITagRepository::class => \DI\autowire(TagRepository::class),
         IAuthRepository::class => \DI\autowire(AuthRepository::class),
+        IImageRepository::class => \DI\autowire(ImageRepository::class),
 
         // Controllers with their dependencies injected
         CategoryController::class => \DI\autowire(),
         TagController::class => \DI\autowire(),
         AuthController::class => \DI\autowire(),
         LocalStorageController::class => \DI\autowire(),
+        ImageController::class => \DI\autowire(),
 
         // Utility
         CacheHelper::class => \DI\autowire(),

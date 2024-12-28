@@ -67,9 +67,10 @@ return function (App $app) {
 
     // Local Storage
     $app->group('/image', function (Group $group) {
+        $group->post('/list', [ImageController::class, 'listImage']);
+        $group->delete('', [ImageController::class, 'deleteImage']);
         $group->post('/upload', [ImageController::class, 'upload'])
-            ->add(ImageMiddleware::class)
-            ->add(new ValidationMiddleware(ImageValidator::class));
+            ->add(new ValidationMiddleware(ImageValidator::class))
+            ->add(ImageMiddleware::class);
     });
-
 };
