@@ -5,6 +5,7 @@ namespace App\Src\Repository;
 use App\Src\Interface\IAuthRepository;
 use App\Src\Model\AuthRegister;
 use App\Src\Model\BaseModel;
+use App\Src\Utility\Config\Constant;
 
 class AuthRepository extends BaseRepository implements IAuthRepository
 {
@@ -18,7 +19,7 @@ class AuthRepository extends BaseRepository implements IAuthRepository
             password_hash($data->getPassword(), PASSWORD_BCRYPT),
         ];
 
-        return $this->executeQueryFetchObject("CreateUser", $params, BaseModel::class);
+        return $this->executeQueryFetchObject(Constant::SPAuth_CreateUser, $params, BaseModel::class);
     }
 
     public function getUserById(string $userId)
@@ -26,7 +27,7 @@ class AuthRepository extends BaseRepository implements IAuthRepository
         $param = [
             $userId,
         ];
-        $result = $this->executeQueryFetchObject("GetUserById", $param, AuthRegister::class);
+        $result = $this->executeQueryFetchObject(Constant::SPAuth_GetUserById, $param, AuthRegister::class);
 
         return $result;
     }
@@ -36,7 +37,7 @@ class AuthRepository extends BaseRepository implements IAuthRepository
         $param = [
             $email,
         ];
-        $result = $this->executeQueryFetchObject("GetUserAuthCredential", $param, AuthRegister::class);
+        $result = $this->executeQueryFetchObject(Constant::SPAuth_GetUserAuthCredential, $param, AuthRegister::class);
 
         return $result;
     }
@@ -46,7 +47,7 @@ class AuthRepository extends BaseRepository implements IAuthRepository
         $param = [
             $userId,
         ];
-        $response = $this->executeQueryFetchObject("GetUserAuthToken", $param);
+        $response = $this->executeQueryFetchObject(Constant::SPAuth_GetUserAuthToken, $param);
         return $response;
     }
 
@@ -57,14 +58,14 @@ class AuthRepository extends BaseRepository implements IAuthRepository
             $token,
             $refresh,
         ];
-        $response = $this->executeQueryFetchObject("UpsertAuthToken", $param);
+        $response = $this->executeQueryFetchObject(Constant::SPAuth_UpsertAuthToken, $param);
         return $response;
     }
 
     public function revokeToken(string $userId)
     {
         $params = [$userId];
-        $response = $this->executeQueryFetchObject("RevokeAuthToken", $params);
+        $response = $this->executeQueryFetchObject(Constant::SPAuth_RevokeAuthToken, $params);
         return $response;
     }
 }

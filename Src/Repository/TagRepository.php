@@ -5,12 +5,13 @@ namespace App\Src\Repository;
 use App\Src\Interface\ITagRepository;
 use App\Src\Model\BaseModel;
 use App\Src\Model\Tag;
+use App\Src\Utility\Config\Constant;
 
 class TagRepository extends BaseRepository implements ITagRepository
 {
     public function getTags(): array
     {
-        return $this->executeQueryFetchAll("GetTags", [], Tag::class);
+        return $this->executeQueryFetchAll(Constant::SPTag_GetTags, [], Tag::class);
     }
 
     public function createTag(Tag $data, string $userId): BaseModel
@@ -20,7 +21,7 @@ class TagRepository extends BaseRepository implements ITagRepository
             $data->getTagName(),
             $userId,
         ];
-        return $this->executeQueryFetchObject("UpsertTag", $params, BaseModel::class);
+        return $this->executeQueryFetchObject(Constant::SPTag_UpsertTag, $params, BaseModel::class);
     }
 
     public function deleteTagByID(string $id): BaseModel
@@ -28,6 +29,6 @@ class TagRepository extends BaseRepository implements ITagRepository
         $params = [
             $id,
         ];
-        return $this->executeQueryFetchObject("DeleteTag", $params, BaseModel::class);
+        return $this->executeQueryFetchObject(Constant::SPTag_DeleteTag, $params, BaseModel::class);
     }
 }

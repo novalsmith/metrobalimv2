@@ -5,6 +5,7 @@ namespace App\Src\Repository;
 use App\Src\Interface\IImageRepository;
 use App\Src\Model\BaseModel;
 use App\Src\Model\Image;
+use App\Src\Utility\Config\Constant;
 use DateTime;
 
 class ImageRepository extends BaseRepository implements IImageRepository
@@ -12,7 +13,7 @@ class ImageRepository extends BaseRepository implements IImageRepository
 
     public function uploadImage(array $param): BaseModel
     {
-        return $this->executeQueryFetchObject("CreateImage", $param, BaseModel::class);
+        return $this->executeQueryFetchObject(Constant::SPImage_CreateImage, $param, BaseModel::class);
     }
 
     public function getImage(?int $imageId, ?DateTime $date): array
@@ -22,7 +23,7 @@ class ImageRepository extends BaseRepository implements IImageRepository
             $imageId,
             $date,
         ];
-        return $this->executeQueryFetchAll("GetImage", $param, Image::class);
+        return $this->executeQueryFetchAll(Constant::SPImage_GetImage, $param, Image::class);
     }
 
     public function deleteImage(int $imageId): BaseModel
@@ -30,6 +31,6 @@ class ImageRepository extends BaseRepository implements IImageRepository
         $param = [
             $imageId,
         ];
-        return $this->executeQueryFetchObject("DeleteImage", $param, BaseModel::class);
+        return $this->executeQueryFetchObject(Constant::SPImage_DeleteImage, $param, BaseModel::class);
     }
 }

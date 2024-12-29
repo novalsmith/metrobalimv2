@@ -49,6 +49,37 @@ class Constant
      */
     public const ImageCacheAge = '31536000';
 
+    // Stored Procedure
+
+    // Auth
+    public const SPAuth_CreateUser = 'CreateUser';
+    public const SPAuth_GetUserById = 'GetUserById';
+    public const SPAuth_GetUserAuthCredential = 'GetUserAuthCredential';
+    public const SPAuth_GetUserAuthToken = 'GetUserAuthToken';
+    public const SPAuth_UpsertAuthToken = 'UpsertAuthToken';
+    public const SPAuth_RevokeAuthToken = 'RevokeAuthToken';
+
+    // Category
+    public const SPCategory_GetCategory = 'GetCategory';
+    public const SPCategory_CreateCategory = 'CreateCategory';
+    public const SPCategory_DeleteCategory = 'DeleteCategory';
+
+    // Image
+    public const SPImage_CreateImage = 'CreateImage';
+    public const SPImage_GetImage = 'GetImage';
+    public const SPImage_DeleteImage = 'DeleteImage';
+
+    // Tag
+    public const SPTag_GetTags = 'GetTags';
+    public const SPTag_UpsertTag = 'UpsertTag';
+    public const SPTag_DeleteTag = 'DeleteTag';
+
+    // Pages
+    public const SPPage_GetPage = 'GetPage';
+    public const SPPage_GetPageById = 'GetPageById';
+    public const SPPage_CreatePage = 'CreatePage';
+    public const SPPage_DeletePage = 'DeletePage';
+
     // Private constructor untuk mencegah pembuatan instance dari luar class
     private function __construct()
     {}
