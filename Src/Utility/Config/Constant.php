@@ -76,8 +76,8 @@ class Constant
 
     // Pages
     public const SPPage_GetPage = 'GetPage';
-    public const SPPage_GetPageById = 'GetPageById';
-    public const SPPage_CreatePage = 'CreatePage';
+    public const SPPage_GetPageById = 'GetPageByID';
+    public const SPPage_UpsertPage = 'UpsertPage';
     public const SPPage_DeletePage = 'DeletePage';
 
     // Private constructor untuk mencegah pembuatan instance dari luar class
