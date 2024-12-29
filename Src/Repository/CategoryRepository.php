@@ -5,12 +5,13 @@ namespace App\Src\Repository;
 use App\Src\Interface\ICategoryRepository;
 use App\Src\Model\BaseModel;
 use App\Src\Model\Category;
+use App\Src\Utility\Config\Constant;
 
 class CategoryRepository extends BaseRepository implements ICategoryRepository
 {
     public function getCategories(): array
     {
-        return $this->executeQueryFetchAll("GetCategory", [], Category::class);
+        return $this->executeQueryFetchAll(Constant::SPCategory_GetCategory, [], Category::class);
     }
 
     public function createCategory(Category $data, string $userId): BaseModel
@@ -20,7 +21,7 @@ class CategoryRepository extends BaseRepository implements ICategoryRepository
             $data->getParentId(),
             $userId,
         ];
-        return $this->executeQueryFetchObject("CreateCategory", $params, BaseModel::class);
+        return $this->executeQueryFetchObject(Constant::SPCategory_CreateCategory, $params, BaseModel::class);
     }
 
     public function deleteCategoryById(string $id): BaseModel
@@ -28,6 +29,6 @@ class CategoryRepository extends BaseRepository implements ICategoryRepository
         $params = [
             $id,
         ];
-        return $this->executeQueryFetchObject("DeleteCategory", $params, BaseModel::class);
+        return $this->executeQueryFetchObject(Constant::SPCategory_DeleteCategory, $params, BaseModel::class);
     }
 }
