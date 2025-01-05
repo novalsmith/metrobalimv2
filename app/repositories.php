@@ -2,13 +2,17 @@
 
 declare (strict_types = 1);
 
+use App\Src\Interface\IArticleRepository;
 use App\Src\Interface\IAuthRepository;
 use App\Src\Interface\ICategoryRepository;
 use App\Src\Interface\IImageRepository;
+use App\Src\Interface\IPageRepository;
 use App\Src\Interface\ITagRepository;
+use App\Src\Repository\ArticleRepository;
 use App\Src\Repository\AuthRepository;
 use App\Src\Repository\CategoryRepository;
 use App\Src\Repository\ImageRepository;
+use App\Src\Repository\PageRepository;
 use App\Src\Repository\TagRepository;
 use DI\ContainerBuilder;
 
@@ -19,5 +23,7 @@ return function (ContainerBuilder $containerBuilder) {
         IAuthRepository::class => \DI\autowire(AuthRepository::class),
         ITagRepository::class => \DI\autowire(TagRepository::class),
         IImageRepository::class => \DI\autowire(ImageRepository::class),
+        IPageRepository::class => \DI\autowire(PageRepository::class),
+        IArticleRepository::class => \DI\autowire(ArticleRepository::class),
     ]);
 };
