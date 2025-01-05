@@ -28,6 +28,7 @@ class JwtMiddleware
             'authLogout' => '/auth/logout',
             'category' => '/category',
             'tag' => '/tag',
+            'article' => '/article/create',
             'page' => '/page/create',
             'imageupload' => '/image/upload',
         ],

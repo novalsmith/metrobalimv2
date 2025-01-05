@@ -2,12 +2,14 @@
 
 declare (strict_types = 1);
 
+use App\Src\Controller\ArticleController;
 use App\Src\Controller\AuthController;
 use App\Src\Controller\CategoryController;
 use App\Src\Controller\ImageController;
 use App\Src\Controller\LocalStorageController;
 use App\Src\Controller\PageController;
 use App\Src\Controller\TagController;
+use App\Src\Model\Validator\ArticleValidator;
 use App\Src\Model\Validator\AuthLoginValidator;
 use App\Src\Model\Validator\AuthRegisterValidator;
 use App\Src\Model\Validator\CategoryValidator;
@@ -82,5 +84,11 @@ return function (App $app) {
         $group->get('/{slug}', [PageController::class, 'getPageById']);
         $group->post('/create', [PageController::class, 'createPage'])
             ->add(new ValidationMiddleware(PageValidator::class));
+    });
+
+    // Article
+    $app->group('/article', function (Group $group) {
+        $group->post('/create', [ArticleController::class, 'createArticle'])
+            ->add(new ValidationMiddleware(ArticleValidator::class));
     });
 };

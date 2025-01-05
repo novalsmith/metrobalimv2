@@ -2,12 +2,15 @@
 
 declare (strict_types = 1);
 
+use App\Src\Controller\ArticleController;
 use App\Src\Controller\AuthController;
 use App\Src\Controller\CategoryController;
 use App\Src\Controller\ImageController;
 use App\Src\Controller\LocalStorageController;
 use App\Src\Controller\PageController;
 use App\Src\Controller\TagController;
+use App\Src\Interface\IArticleRepository;
+use App\Src\Interface\IArticleService;
 use App\Src\Interface\IAuthRepository;
 use App\Src\Interface\IAuthService;
 use App\Src\Interface\ICategoryRepository;
@@ -19,11 +22,13 @@ use App\Src\Interface\IPageRepository;
 use App\Src\Interface\IPageService;
 use App\Src\Interface\ITagRepository;
 use App\Src\Interface\ITagService;
+use App\Src\Repository\ArticleRepository;
 use App\Src\Repository\AuthRepository;
 use App\Src\Repository\CategoryRepository;
 use App\Src\Repository\ImageRepository;
 use App\Src\Repository\PageRepository;
 use App\Src\Repository\TagRepository;
+use App\Src\Service\ArticleService;
 use App\Src\Service\AuthService;
 use App\Src\Service\CategoryService;
 use App\Src\Service\ImageService;
@@ -64,6 +69,7 @@ return function (ContainerBuilder $containerBuilder) {
         ILocalStorageService::class => \DI\autowire(LocalStorageService::class),
         IImageService::class => \DI\autowire(ImageService::class),
         IPageService::class => \DI\autowire(PageService::class),
+        IArticleService::class => \DI\autowire(ArticleService::class),
 
         // Autowiring Repositories
         ICategoryRepository::class => \DI\autowire(CategoryRepository::class),
@@ -71,6 +77,7 @@ return function (ContainerBuilder $containerBuilder) {
         IAuthRepository::class => \DI\autowire(AuthRepository::class),
         IImageRepository::class => \DI\autowire(ImageRepository::class),
         IPageRepository::class => \DI\autowire(PageRepository::class),
+        IArticleRepository::class => \DI\autowire(ArticleRepository::class),
 
         // Controllers with their dependencies injected
         CategoryController::class => \DI\autowire(),
@@ -79,6 +86,7 @@ return function (ContainerBuilder $containerBuilder) {
         LocalStorageController::class => \DI\autowire(),
         ImageController::class => \DI\autowire(),
         PageController::class => \DI\autowire(),
+        ArticleController::class => \DI\autowire(),
 
         // Utility
         CacheHelper::class => \DI\autowire(),

@@ -42,10 +42,10 @@ class PageValidator
         // Validate 'imageCover' (optional string, max 66 chars)
         if (array_key_exists($imageCover, $data)) {
             if (!v::intType()->validate($data[$imageCover])) {
-                $errors[$parent] = "'$imageCover' must be an integer";
+                $errors[$imageCover] = "'$imageCover' must be an integer";
             }
         } else {
-            $errors[$parent] = "'$imageCover' is required";
+            $errors[$imageCover] = "'$imageCover' is required";
         }
 
         // Validate 'title' (required string, max 66 chars)
