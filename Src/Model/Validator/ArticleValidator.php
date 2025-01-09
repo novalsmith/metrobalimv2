@@ -20,11 +20,12 @@ class ArticleValidator
         $publishDate = 'publishDate';
         $metaKeywords = 'metaKeywords';
         $metaDescription = 'metaDescription';
-        $createdBy = 'createdBy';
-        $utcCreatedDate = 'utcCreatedDate';
         $updatedBy = 'updatedBy';
         $utcUpdatedDate = 'utcUpdatedDate';
         $imageCover = 'imageCover';
+        $keywords = 'keywords';
+        $startDate = 'startDate';
+        $endDate = 'endDate';
 
         if (empty($data)) {
             throw new InvalidArgumentException(json_encode("Payload tidak boleh kosong"));
@@ -84,16 +85,6 @@ class ArticleValidator
             $errors[$metaDescription] = "'$metaDescription' must be a string with a maximum length of 140 characters";
         }
 
-        // Validate 'createdBy' (required string)
-        // if (!array_key_exists($createdBy, $data) || !v::stringType()->validate($data[$createdBy])) {
-        //     $errors[$createdBy] = "'$createdBy' is required and must be a string";
-        // }
-
-        // Validate 'utcCreatedDate' (required string, valid UTC date format)
-        // if (!array_key_exists($utcCreatedDate, $data) || !v::stringType()->validate($data[$utcCreatedDate])) {
-        //     $errors[$utcCreatedDate] = "'$utcCreatedDate' is required and must be a valid UTC date string";
-        // }
-
         // Validate 'updatedBy' (optional string)
         if (array_key_exists($updatedBy, $data) && !v::stringType()->validate($data[$updatedBy])) {
             $errors[$updatedBy] = "'$updatedBy' must be a string";
@@ -102,6 +93,19 @@ class ArticleValidator
         // Validate 'utcUpdatedDate' (optional string, valid UTC date format)
         if (array_key_exists($utcUpdatedDate, $data) && !v::stringType()->validate($data[$utcUpdatedDate])) {
             $errors[$utcUpdatedDate] = "'$utcUpdatedDate' must be a valid UTC date string";
+        }
+
+        // Validate 'keywords' (optional string, max 45 chars)
+        if (array_key_exists($keywords, $data) && !v::stringType()->length(5, null)->validate($data[$keywords])) {
+            $errors[$keywords] = "'$keywords' must be a string with a minimum length of 5 characters";
+        }
+
+        if (array_key_exists($startDate, $data) && !v::stringType()->validate($data[$startDate])) {
+            $errors[$startDate] = "'$startDate' must be a valid UTC date string";
+        }
+
+        if (array_key_exists($endDate, $data) && !v::stringType()->validate($data[$endDate])) {
+            $errors[$endDate] = "'$endDate' must be a valid UTC date string";
         }
 
         // If there are any validation errors, throw an exception

@@ -50,6 +50,7 @@ class Article
     public ?string $utcUpdatedDate;
     public ?int $imageCover;
     public ?Image $image;
+    public string $categoryName;
 
     public function __construct(array $data)
     {
@@ -58,6 +59,7 @@ class Article
         $this->slug = UtilityHelper::slugify($data['title']);
         $this->content = $data['content'] ?? '';
         $this->categoryId = $data['categoryId'] ?? 0;
+        $this->categoryName = $data['categoryName'] ?? '';
         $this->status = $data['status'] ?? 'draft';
         $this->publishDate = $data['publishDate'] ?? null;
         $this->metaKeywords = $data['metaKeywords'] ?? '';

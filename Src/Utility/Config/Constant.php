@@ -81,10 +81,10 @@ class Constant
     public const SPPage_DeletePage = 'DeletePage';
 
     // Article
-    public const SPArticle_GetPage = 'GetArticle';
-    public const SPArticle_GetPageById = 'GetArticleByID';
-    public const SPArticle_UpsertPage = 'UpsertArticle';
-    public const SPArticle_DeletePage = 'DeleteArticle';
+    public const SPArticle_GetArticle = 'GetNews';
+    public const SPArticle_GetArticleById = 'GetArticleByID';
+    public const SPArticle_UpsertArticle = 'UpsertArticle';
+    public const SPArticle_DeleteArticle = 'DeleteArticle';
 
     // Private constructor untuk mencegah pembuatan instance dari luar class
     private function __construct()

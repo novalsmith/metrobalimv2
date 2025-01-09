@@ -88,6 +88,9 @@ return function (App $app) {
 
     // Article
     $app->group('/article', function (Group $group) {
+        $group->get('', [ArticleController::class, 'searchArticle'])
+            ->add(new ValidationMiddleware(ArticleValidator::class));
+        $group->get('/{categoryId}/{newsId}/{slug}', [ArticleController::class, 'getArticleById']);
         $group->post('/create', [ArticleController::class, 'createArticle'])
             ->add(new ValidationMiddleware(ArticleValidator::class));
     });

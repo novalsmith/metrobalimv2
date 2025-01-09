@@ -4,6 +4,7 @@ namespace App\Src\Repository;
 
 use App\Src\Interface\IArticleRepository;
 use App\Src\Model\Article;
+use App\Src\Model\ArticlePayload;
 use App\Src\Model\BaseModel;
 use App\Src\Utility\Config\Constant;
 
@@ -24,6 +25,29 @@ class ArticleRepository extends BaseRepository implements IArticleRepository
             $data->metaDescription,
             $userId,
         ];
-        return $this->executeQueryFetchObject(Constant::SPArticle_UpsertPage, $params, BaseModel::class);
+        return $this->executeQueryFetchObject(Constant::SPArticle_UpsertArticle, $params, BaseModel::class);
+    }
+
+    public function getArticle(ArticlePayload $payload): array
+    {
+        $offset = ($payload->page - 1) * $payload->pageSize;
+        // $params = [
+        //     $categoryId,
+        //     $newsId,
+        //     $slug,
+        // ];
+
+        return $this->executeQueryFetchAll(Constant::SPArticle_GetArticle, [], Article::class);
+
+    }
+
+    public function getArticleById(string $categoryId, int $newsId, string $slug): ?Article
+    {
+        $params = [
+            $categoryId,
+            $newsId,
+            $slug,
+        ];
+        return $this->executeQueryFetchObject(Constant::SPArticle_GetArticleById, $params, Article::class);
     }
 }
