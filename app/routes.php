@@ -9,6 +9,7 @@ use App\Src\Controller\ImageController;
 use App\Src\Controller\LocalStorageController;
 use App\Src\Controller\PageController;
 use App\Src\Controller\TagController;
+use App\Src\Model\Validator\ArticlePayloadValidator;
 use App\Src\Model\Validator\ArticleValidator;
 use App\Src\Model\Validator\AuthLoginValidator;
 use App\Src\Model\Validator\AuthRegisterValidator;
@@ -88,6 +89,9 @@ return function (App $app) {
 
     // Article
     $app->group('/article', function (Group $group) {
+        $group->post('/search', [ArticleController::class, 'searchArticle'])
+            ->add(new ValidationMiddleware(ArticlePayloadValidator::class));
+        $group->get('/{categoryId}/{newsId}/{slug}', [ArticleController::class, 'getArticleById']);
         $group->post('/create', [ArticleController::class, 'createArticle'])
             ->add(new ValidationMiddleware(ArticleValidator::class));
     });
