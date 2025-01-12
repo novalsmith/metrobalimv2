@@ -5,6 +5,7 @@ namespace App\Src\Controller;
 use App\Src\Interface\IArticleService;
 use App\Src\Model\Article;
 use App\Src\Model\ArticlePayload;
+use App\Src\Model\Validator\ArticlePayloadValidator;
 use App\Src\Model\Validator\ArticleValidator;
 use App\Src\Utility\Config\Constant;
 use App\Src\Utility\Helper\JsonResponseHelper;
@@ -40,7 +41,7 @@ class ArticleController
     {
         try {
             $parsedBody = $request->getParsedBody();
-            ArticleValidator::validate($parsedBody);
+            ArticlePayloadValidator::validate($parsedBody);
 
             $payload = new ArticlePayload($parsedBody);
 

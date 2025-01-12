@@ -20,11 +20,11 @@ class ArticlePayload
     {
         $this->newsId = $data['newsId'] ?? null;
         $this->keywords = $data['keywords'] ?? '';
-        $this->slug = $data['slug'];
+        $this->slug = $data['slug'] ?? null;
         $this->categoryId = $data['categoryId'] ?? null;
         $this->status = $data['status'] ?? 'draft';
         $this->startDate = $data['startDate'] ?? null;
-        $this->endDate = $data['endDate'] ?? '';
+        $this->endDate = $data['endDate'] ?? null;
         $this->page = $data['page'] ?? null;
         $this->pageSize = $data['pageSize'] ?? null;
     }

@@ -85,6 +85,7 @@ class Constant
     public const SPArticle_GetArticleById = 'GetArticleByID';
     public const SPArticle_UpsertArticle = 'UpsertArticle';
     public const SPArticle_DeleteArticle = 'DeleteArticle';
+    public const SPTotalData = 'GetTotalData';
 
     // Private constructor untuk mencegah pembuatan instance dari luar class
     private function __construct()

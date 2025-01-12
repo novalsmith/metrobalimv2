@@ -33,7 +33,7 @@ use App\Src\Utility\Helper\UtilityHelper;
 //     }
 // }
 
-class Article
+class Article extends Paging
 {
     public ?int $newsId;
     public string $title;

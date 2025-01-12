@@ -29,10 +29,30 @@ class ArticleService implements IArticleService
     public function getArticle(ArticlePayload $payload): array
     {
         try {
-            $register = $this->articleRepository->getArticle($payload);
-            return $register;
+            $offset = ($payload->page - 1) * $payload->pageSize;
+            $articles = $this->articleRepository->getArticle($payload, $offset);
+
+            // Total jumlah data dari database
+            $total = $this->articleRepository->getTotalData($payload);
+
+            // Apakah masih ada halaman berikutnya
+            $more = ($offset + $payload->pageSize) < $total->data;
+
+            // Susun respons dengan struktur yang benar
+            $response = [
+                'news' => $articles,
+                'meta' => [
+                    'page' => $payload->page,
+                    'pageSize' => $payload->pageSize,
+                    'more' => $more,
+                    'total' => $total->data,
+                    'offset' => $offset,
+                ],
+            ];
+
+            return $response;
         } catch (\Exception $e) {
-            throw new \Exception('Error when getPage : ' . $e->getMessage(), 500);
+            throw new \Exception('Error when getArticle : ' . $e->getMessage(), 500);
         }
     }
 

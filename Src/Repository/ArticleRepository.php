@@ -28,16 +28,21 @@ class ArticleRepository extends BaseRepository implements IArticleRepository
         return $this->executeQueryFetchObject(Constant::SPArticle_UpsertArticle, $params, BaseModel::class);
     }
 
-    public function getArticle(ArticlePayload $payload): array
+    public function getArticle(ArticlePayload $payload, $offset): array
     {
-        $offset = ($payload->page - 1) * $payload->pageSize;
-        // $params = [
-        //     $categoryId,
-        //     $newsId,
-        //     $slug,
-        // ];
+        $params = [
+            $payload->newsId,
+            $payload->keywords,
+            $payload->slug,
+            $payload->categoryId,
+            $payload->status,
+            $payload->startDate,
+            $payload->endDate,
+            $offset,
+            $payload->pageSize,
+        ];
 
-        return $this->executeQueryFetchAll(Constant::SPArticle_GetArticle, [], Article::class);
+        return $this->executeQueryFetchAll(Constant::SPArticle_GetArticle, $params, Article::class);
 
     }
 
@@ -49,5 +54,20 @@ class ArticleRepository extends BaseRepository implements IArticleRepository
             $slug,
         ];
         return $this->executeQueryFetchObject(Constant::SPArticle_GetArticleById, $params, Article::class);
+    }
+
+    public function getTotalData(ArticlePayload $payload): BaseModel
+    {
+        $params = [
+            'article',
+            $payload->newsId,
+            $payload->keywords,
+            $payload->slug,
+            $payload->categoryId,
+            $payload->status,
+            $payload->startDate,
+            $payload->endDate,
+        ];
+        return $this->executeQueryFetchObject(Constant::SPTotalData, $params, BaseModel::class);
     }
 }
