@@ -1,0 +1,38 @@
+name: Workflow CI/CD Slim PHP
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy to cPanel
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@main
+
+      # Langkah Composer (Jika memungkinkan di server)
+      - name: Install Composer Dependencies
+        run: composer install --no-dev --optimize-autoloader
+        #Jika composer install di server tidak memungkinkan, maka folder vendor harus sudah terupload
+
+      - name: Sync files to cPanel
+        uses: SamKirkland/FTP-Deploy-Action@4.3.1
+        with:
+          server: mosframtech.com # Ganti dengan domain Anda
+          username: ${{ secrets.STAGING_USER }} # Ganti dengan username FTP Anda
+          password: ${{ secrets.STAGING_PASSWORD }} # Simpan password di GitHub Secrets
+          local-dir: . # Unggah semua file di root proyek (atau sesuaikan dengan struktur folder Anda)
+          
+          exclude: |
+            .git/**
+            .git**
+            .git*/**
+            **/.git*
+            **/.git*/**
+            .github/**
+            README.md
+            .env.example
