@@ -26,7 +26,7 @@ jobs:
           username: ${{ secrets.STAGING_USER }} # Ganti dengan username FTP Anda
           password: ${{ secrets.STAGING_PASSWORD }} # Simpan password di GitHub Secrets
           local-dir: . # Unggah semua file di root proyek (atau sesuaikan dengan struktur folder Anda)
-          remote-dir: public_html/metrobalim/service/ # Ganti dengan path di cPanel (misalnya, public_html/aplikasi_slim)
+          
           exclude: |
             .git/**
             .git**
