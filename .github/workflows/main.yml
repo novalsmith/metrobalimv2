@@ -26,7 +26,7 @@ jobs:
           server: metrobalim.service.mosframtech.com # Ganti dengan domain Anda
           username: ${{ secrets.STAGING_USER }} # Ganti dengan username FTP Anda
           password: ${{ secrets.STAGING_PASSWORD }} # Simpan password di GitHub Secrets
-          local-dir: . # Unggah semua file di root proyek (atau sesuaikan dengan struktur folder Anda)
+          local-dir: / # Unggah semua file di root proyek (atau sesuaikan dengan struktur folder Anda)
           
           exclude: |
             .git/**
